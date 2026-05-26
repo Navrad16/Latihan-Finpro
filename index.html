@@ -3,103 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Garden Hidroponik 🌱</title>
+    <title>My Little Pusheen - Smart Garden 🌱</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --pink-primary: #f06292;
-            --pink-bubblegum: #ff4081;
-            --pink-border: #ff85af;
-            --yellow-pastel: #fff59d;
-            --yellow-border: #ffe082;
-            --text-dark: #704254;
-            --text-muted: #9e7788;
-            --card-bg: rgba(255, 255, 255, 0.93);
-            --radius-custom: 22px;
-            --radius-input: 16px;
+            --pink-dark:    #d94685;
+            --pink-main:    #f25c9c;
+            --pink-light:   #ffbccc;
+            --pink-pale:    #fff0f3;
+            --purple-main:  #9b72b0;
+            --purple-light: #dfccf2;
+            --yellow-main:  #fceb79;
+            --yellow-light: #fffacd;
+            --dark-text:    #694a58;
+            --text-muted:   #9c7f8e;
+            --bg-main:      #e2f3e9; /* Background gradasi hijau-biru pastel luar */
+            --card-bg:      #ffffff;
+            --radius:       24px;
+            --radius-sm:    16px;
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Fredoka', 'Nunito', sans-serif;
+            font-family: 'Fredoka', sans-serif;
             min-height: 100vh;
-            /* Menggunakan gambar background dari Pinterest sesuai request */
-            background: url('https://i.pinimg.com/webp/1200x/b7/6d/5f/b76d5f2ffb21263b588c23618d97ee9a.webp') no-repeat center center fixed;
-            background-size: cover;
-            color: var(--text-dark);
-            padding: 30px 16px 60px;
+            background: linear-gradient(135deg, #cbdad5 0%, #b8dcd1 100%);
+            color: var(--dark-text);
+            padding: 40px 20px;
             position: relative;
-            overflow-x: hidden;
         }
 
         .wrapper {
-            max-width: 1150px;
+            max-width: 1100px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
         }
 
-        /* ===== LOGO / HEADER AREA ===== */
-        .header-container {
+        /* ===== HEADER / BANNER CUTE ===== */
+        .brand-header {
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .logo-box {
+            text-align: center;
+            background: var(--pink-main);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            box-shadow: 0 8px 0 #b5386e;
+            border: 4px solid white;
+        }
+        .logo-box h1 {
+            font-size: 2.5em;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+        }
+        .logo-box p {
+            font-size: 0.9em;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* ===== STATUS BADGES ===== */
+        .status-wrap {
+            position: absolute;
+            top: -20px;
+            right: 0;
+            display: flex;
+            gap: 10px;
+        }
+        .badge {
+            background: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid var(--purple-light);
+            color: var(--text-muted);
+        }
+        .badge.online { color: white; background: var(--pink-main); border-color: var(--pink-dark); }
+
+        /* ===== DASHBOARD GRID LAYOUT MOCKUP ===== */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .status-wrap { position: static; margin-bottom: 20px; justify-content: center; }
+        }
+
+        .column-left {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .column-center {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .column-right {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* ===== CARDS DESIGN ===== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            border: 4px solid white;
+            box-shadow: 0 10px 0px rgba(105, 74, 88, 0.08);
+            position: relative;
+        }
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--pink-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== INPUT & LABELS (PINK STYLE) ===== */
+        label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.9em;
+            color: var(--pink-main);
+            margin-bottom: 6px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 3px solid var(--pink-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.95em;
+            font-family: 'Fredoka', sans-serif;
+            color: var(--dark-text);
+            background: white;
+            outline: none;
+            transition: all .3s;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        input:focus {
+            border-color: var(--pink-main);
+        }
+        input[type=password] { font-family: 'Space Mono', monospace; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            background: var(--pink-main);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all .2s;
+            width: 100%;
+            box-shadow: 0 5px 0 var(--pink-dark);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 var(--pink-dark);
+        }
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 var(--pink-dark);
+        }
+        .btn:disabled { background: #d1d5db; box-shadow: 0 4px 0 #9ca3af; cursor: not-allowed; transform: none; }
+        
+        .btn-dark { background: var(--purple-main); box-shadow: 0 5px 0 #6e4e7d; }
+        .btn-dark:hover { box-shadow: 0 7px 0 #6e4e7d; }
+        .btn-outline { background: transparent; color: var(--purple-main); border: 3px solid var(--purple-main); box-shadow: none;}
+        .btn-outline:hover { background: var(--purple-light); }
+
+        /* ===== TOGGLE AUTO/MANUAL VERTICAL (MATCH IMAGE) ===== */
+        .mode-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: var(--radius);
+            border: 4px solid white;
+            box-shadow: 0 10px 0px rgba(105, 74, 88, 0.08);
             text-align: center;
+            height: 100%;
+            min-height: 200px;
+        }
+        .mode-label-top {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--pink-main);
+            margin-bottom: 10px;
+        }
+        .mode-label-bottom {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--yellow-main);
+            text-shadow: 1px 1px 0 #ccba3b;
+            margin-top: 10px;
         }
         
-        /* Banner mockup My Little Pusheen Text */
-        .pusheen-banner {
-            background: linear-gradient(135deg, #e91e63, #ff4081);
-            color: white;
-            padding: 12px 35px;
-            border-radius: 50px;
+        /* Custom Cute Switch Mode Toggle Trigger */
+        .btn-mode-trigger {
+            background: #fff59d;
+            border: 4px solid var(--pink-light);
+            width: 50px;
+            height: 90px;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .btn-mode-trigger::before {
+            content: '';
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--pink-main);
+            top: 4px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: 0 4px 0 var(--pink-dark);
+        }
+        /* State manual (active) */
+        .mode-container.manual-mode-active .btn-mode-trigger::before {
+            top: 42px;
+            background: var(--yellow-main);
+            box-shadow: 0 4px 0 #c7b532;
+        }
+
+        /* ===== SENSOR & ACTUATOR CARDS ===== */
+        .sensor-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            text-align: center;
+            border: 4px solid white;
+            box-shadow: 0 10px 0px rgba(105, 74, 88, 0.08);
+        }
+        .sensor-header-title {
+            font-size: 0.85em;
+            color: var(--text-muted);
             font-weight: 700;
-            font-size: 2.2rem;
-            letter-spacing: 1px;
-            border: 5px solid white;
-            box-shadow: 0 8px 0px rgba(233, 30, 99, 0.2);
-            display: inline-block;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 15px;
         }
-
-        .header-subtitle {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #512da8;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 4px 16px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        /* ===== STATUS BADGES (top right) ===== */
-        .status-wrap {
-            position: fixed; top: 20px; right: 20px;
-            display: flex; flex-direction: column; gap: 8px; z-index: 1000;
-        }
-        .badge {
-            background: white; backdrop-filter: blur(12px);
-            padding: 8px 18px; border-radius: 30px;
-            font-size: 12px; font-weight: 700;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 16px rgba(221, 44, 0, 0.08);
-            border: 2px solid #ffccd8;
-            transition: all .3s; color: var(--text-muted);
-        }
-        .badge.online { color: #e91e63; border-color: var(--pink-border); background: #ffe4ec; }
-
-        /* ===== CARDS (Sesuai Putih Bersih di Gambar) ===== */
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius
+        .sensor-val {
+            font-size: 4em;
+            font
