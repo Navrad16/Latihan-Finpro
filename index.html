@@ -1,558 +1,798 @@
-<!-- =========================
-     TAMBAHKAN DI <body>
-========================= -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Little Pusheen - Smart Garden 🌱</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --pink-primary: #ff65a3;
+            --pink-light: #ffebf3;
+            --pink-border: #ffb7d5;
+            --yellow-accent: #fff5a1;
+            --text-dark: #7a465d;
+            --text-muted: #a3758a;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --radius: 24px;
+            --radius-sm: 16px;
+        }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            background: url('https://i.pinimg.com/webp/1200x/b7/6d/5f/b76d5f2ffb21263b588c23618d97ee9a.webp') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-dark);
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ===== HEADER AREA ===== */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .pusheen-twilight {
+            width: 200px;
+            height: auto;
+            margin-right: -10px;
+            z-index: 2;
+        }
+        .main-title-img {
+            height: 130px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* ===== MAIN LAYOUT GRID MATCHING IMAGE ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.5fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+        }
+
+        /* Assigning positions based on image layout */
+        .cell-firebase { grid-column: 1; grid-row: 1 / 3; }
+        .cell-mode { grid-column: 2; grid-row: 1; }
+        .cell-dht { grid-column: 3; grid-row: 1; }
+        .cell-relay { grid-column: 3; grid-row: 2; }
+        .cell-microbit { grid-column: 2; grid-row: 2; } /* Menampung Microbit BLE */
+        .cell-terminal { grid-column: 2 / 4; grid-row: 3; }
+        .cell-charts-area { grid-column: 1; grid-row: 3; }
+
+        /* ===== CARD BASE ===== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(255, 101, 163, 0.15);
+            border: 4px solid white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: var(--pink-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ===== FIREBASE CARD STYLING ===== */
+        .card-firebase {
+            border: 4px solid var(--pink-border);
+        }
+        .card-firebase label {
+            font-weight: 800;
+            font-size: 1.1em;
+            color: var(--pink-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .card-firebase input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 3px solid var(--pink-border);
+            border-radius: var(--radius-sm);
+            font-size: 1em;
+            color: var(--text-dark);
+            background: white;
+            outline: none;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .btn-firebase {
+            background: var(--pink-primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 900;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(255, 101, 163, 0.3);
+            margin-top: auto;
+        }
+
+        /* ===== AUTO / MANUAL SWITCH CARD ===== */
+        .card-mode {
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .mode-text {
+            font-weight: 900;
+            font-size: 1.3em;
+            color: #ffd24c;
+            text-shadow: 1px 1px 0px #cda21b;
+        }
+        .mode-text.auto-lbl { color: var(--pink-primary); text-shadow: none; }
+        
+        /* Vertical Toggle Design like image */
+        .vertical-switch {
+            width: 45px;
+            height: 90px;
+            background: #fff5a1;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            border: 3px solid #ffe869;
+        }
+        .vertical-handle {
+            width: 35px;
+            height: 35px;
+            background: #ff9ebe;
+            border-radius: 50%;
+            position: absolute;
+            left: 2px;
+            transition: top 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .vertical-switch.auto .vertical-handle { top: 4px; }
+        .vertical-switch.manual .vertical-handle { top: 45px; }
+
+        /* Decorative Fluttering Butterfly wings on Switch */
+        .card-mode::before {
+            content: '⭐'; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em;
+        }
+        .card-mode::after {
+            content: '🦋'; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em;
+        }
+
+        /* ===== SENSOR & RELAY TOP RIGHT ===== */
+        .card-sensor {
+            background: white;
+        }
+        .sensor-header {
+            font-weight: 800;
+            font-size: 0.9em;
+            color: var(--pink-border);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sensor-main-val {
+            font-size: 4em;
+            font-weight: 900;
+            color: var(--pink-primary);
+            text-align: center;
+            margin: 10px 0;
+            font-family: 'Space Mono', monospace;
+        }
+        .sensor-subtext {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* Pusheen Overlay Decorator */
+        .pusheen-dekor {
+            position: absolute;
+            top: -45px;
+            right: -25px;
+            width: 85px;
+            z-index: 10;
+        }
+
+        /* ===== RELAY CARD ===== */
+        .card-relay-box {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .relay-bolt {
+            font-size: 3em;
+            color: #ffd24c;
+            margin-bottom: 5px;
+        }
+        .relay-name-title {
+            font-weight: 900;
+            font-size: 1.4em;
+            color: var(--pink-primary);
+        }
+        .relay-pin-info {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin: 8px 0;
+            font-weight: 600;
+        }
+        .relay-status-text {
+            font-size: 2em;
+            font-weight: 900;
+            color: #babcbe;
+            text-transform: uppercase;
+        }
+        .card-relay-box.on .relay-status-text {
+            color: var(--pink-primary);
+        }
+
+        /* Manual Slider inside Relay */
+        .relay-toggle-container {
+            margin-top: 10px;
+        }
+        .toggle-switch-horiz {
+            position: relative; display: inline-block; width: 60px; height: 34px;
+        }
+        .toggle-switch-horiz input { opacity: 0; width: 0; height: 0; }
+        .slider-horiz {
+            position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px;
+        }
+        .slider-horiz:before {
+            position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider-horiz { background-color: var(--pink-primary); }
+        input:checked + .slider-horiz:before { transform: translateX(26px); }
+
+
+        /* ===== MICROBIT AUXILIARY CARD ===== */
+        .card-microbit {
+            padding: 15px;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-ble {
+            background: #7ca6df; color: white; border: none; padding: 10px; border-radius: 20px; font-weight: 800; cursor: pointer; font-size: 0.85em;
+        }
+        .btn-ble-dark {
+            background: #506b94;
+        }
+
+        /* ===== SYSTEM TERMINAL WINDOW ===== */
+        .card-terminal-window {
+            background: #471126;
+            border: 6px solid #6b223f;
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .terminal-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .window-dots {
+            display: flex; gap: 8px;
+        }
+        .window-dot { width: 14px; height: 14px; border-radius: 50%; }
+        .wd-r { background: #ff5f56; }
+        .wd-y { background: #ffbd2e; }
+        .wd-g { background: #27c93f; }
+        .terminal-title-text {
+            color: #ff9ebe;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+        .terminal-log-box {
+            height: 150px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            overflow-y: auto;
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            color: #ffb7d5;
+        }
+        .log-row { margin-bottom: 4px; }
+        .log-timestamp { color: #ffd24c; margin-right: 6px; }
+
+        /* ===== CHARTS & HISTORY AREA ===== */
+        .charts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .mini-chart-card {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            border: 2px solid var(--pink-border);
+        }
+        .mini-chart-title {
+            font-size: 0.85em; font-weight: 800; color: var(--text-dark); margin-bottom: 6px;
+        }
+
+        /* ===== STATUS BADGES OVERLAY ===== */
+        .status-fixed-corner {
+            position: fixed; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 6px; z-index: 2000;
+        }
+        .status-pill {
+            background: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .status-pill.online { background: #e3ffd5; color: #438a22; border: 1.5px solid #a2e881; }
+
+        /* Bottom Pusheen Decorative Flutter */
+        .pusheen-bottom-left {
+            position: absolute; bottom: -15px; left: -25px; width: 110px; z-index: 15;
+        }
+        .pusheen-bottom-center {
+            position: absolute; bottom: -20px; left: 38%; width: 110px; z-index: 15;
+        }
+
+        /* Hidden or legacy alert integration wrapper */
+        .alert-banner { display: none; }
+        .alert-banner.show { display: block; background: #fff1f1; border: 2px dashed red; padding: 10px; border-radius: 10px; font-size: 0.8em; margin-top: 5px; }
+
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .cell-firebase, .cell-mode, .cell-dht, .cell-relay, .cell-microbit, .cell-terminal, .cell-charts-area { grid-column: 1 !important; grid-row: auto !important; }
+            .header-container { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
 <body>
 
-<div class="bg-overlay"></div>
-
-<!-- Hiasan -->
-<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="deco deco-left">
-<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="deco deco-right">
-<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="vector vector-1">
-<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="vector vector-2">
-<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="star">
-
-<div class="main-ui">
-
-    <!-- TITLE -->
-    <div class="title-wrap">
-        <img 
-        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true"
-        class="title-img">
-    </div>
-
-    <!-- SUHU -->
-    <div class="cute-card suhu-card">
-        <div class="mini-title">🌡️ DHT11 - SUHU</div>
-
-        <div class="suhu-value" id="val-suhu">
-            --°
-        </div>
-
-        <div class="suhu-desc">
-            Suhu udara taman
-        </div>
-
-        <img 
-        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2018.png?raw=true"
-        class="chart chart-suhu">
-    </div>
-
-    <!-- FIREBASE -->
-    <div class="cute-card firebase-card">
-
-        <div class="firebase-title">
-            ☁️ Firebase Cloud Sync
-        </div>
-
-        <label>Api key</label>
-        <input type="password" id="fb-apiKey">
-
-        <label>Database URL</label>
-        <input type="text" id="fb-dbUrl">
-
-        <label>Node path</label>
-        <input type="text" id="fb-path">
-
-        <button class="firebase-btn" id="btn-connect-fb">
-            🔗 Hubungkan Firebase
-        </button>
-
-        <!-- CHART KIRI -->
-        <img 
-        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2014.png?raw=true"
-        class="chart-left">
-    </div>
-
-    <!-- MODE -->
-    <div class="cute-card mode-card">
-
-        <div class="mode-title">Auto</div>
-
-        <div class="toggle-box">
-            <label class="switch">
-                <input type="checkbox" id="modeSwitch">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="mode-bottom">
-            Manual
-        </div>
-
-        <img 
-        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2019%20(1).png?raw=true"
-        class="chart-auto">
-    </div>
-
-    <!-- RELAY -->
-    <div class="cute-card relay-card">
-
-        <img 
-        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2020.png?raw=true"
-        class="relay-light">
-
-        <div class="relay-title">
-            Relay
-        </div>
-
-        <div class="relay-desc">
-            📌 pin P13 · Untuk mengontrol
-            nyala dan matinya kipas
-        </div>
-
-        <div class="relay-status" id="lbl-relay">
-            Off
-        </div>
-    </div>
-
-    <!-- TERMINAL -->
-    <div class="terminal-card">
-
-        <div class="terminal-header">
-            <div class="dots">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-            </div>
-
-            <div class="terminal-title">
-                System_terminal
-            </div>
-        </div>
-
-        <div id="terminalLog" class="terminal-log"></div>
-
-        <!-- CHART KANAN BAWAH -->
-        <img 
-        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2021.png?raw=true"
-        class="chart-bottom">
-    </div>
-
+<div class="status-fixed-corner">
+    <div class="status-pill" id="status-bt"><i class="fab fa-bluetooth-b"></i> BT Offline</div>
+    <div class="status-pill" id="status-fb"><i class="fas fa-cloud"></i> DB Offline</div>
 </div>
 
+<div class="wrapper">
 
-<style>
+    <div class="header-container">
+        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2012.png?raw=true" class="pusheen-twilight" alt="Pusheen Twilight">
+        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-title-img" alt="My Little Pusheen">
+    </div>
 
-/* =========================
-   BACKGROUND
-========================= */
+    <div class="main-grid">
+        
+        <div class="card card-firebase cell-firebase">
+            <div class="card-title">
+                <i class="fas fa-cloud" style="color: #64b5f6;"></i> Fire base cloud sync
+            </div>
+            
+            <label>Api key</label>
+            <input type="password" id="fb-apiKey" placeholder="AIzaSy...">
+            
+            <label>Database URL</label>
+            <input type="text" id="fb-dbUrl" placeholder="https://project-rtdb.firebaseio.com">
+            
+            <label>Node path</label>
+            <input type="text" id="fb-path" value="smarthome/ruangan1">
+            
+            <button class="btn-firebase" id="btn-connect-fb">
+                <i class="fas fa-link"></i> Hubungkan Firebase
+            </button>
+            
+            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/pngwing.com%20(4).png?raw=true" class="pusheen-bottom-left" alt="decor">
+        </div>
 
-body{
-    margin:0;
-    min-height:100vh;
-    overflow-x:hidden;
-    font-family: 'Nunito', sans-serif;
+        <div class="card card-mode cell-mode">
+            <div class="mode-text auto-lbl">Auto</div>
+            
+            <div class="vertical-switch auto" id="customVerticalSwitch">
+                <div class="vertical-handle"></div>
+            </div>
+            
+            <div class="mode-text">Manual</div>
+            
+            <button id="btnToggleMode" style="display: none;"></button>
+        </div>
 
-    background-image:url('https://i.pinimg.com/webp/1200x/b7/6d/5f/b76d5f2ffb21263b588c23618d97ee9a.webp');
-    background-size:cover;
-    background-position:center;
-    background-attachment:fixed;
+        <div class="card card-microbit cell-microbit">
+            <div style="font-size: 0.75em; font-weight: 700; color: var(--text-muted); text-align: center;">
+                Micro:bit BLE Link
+            </div>
+            <button class="btn-ble" id="btn-connect-ble"><i class="fab fa-bluetooth"></i> Connect</button>
+            <button class="btn-ble btn-ble-dark" id="btn-disconnect-ble" disabled>Disconnect</button>
+        </div>
 
-    position:relative;
+        <div class="card card-sensor cell-dht">
+            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/pngwing.com%20(3).png?raw=true" class="pusheen-dekor" alt="decor">
+            
+            <div class="sensor-header">
+                <i class="fas fa-thermometer-half" style="color: #ff65a3;"></i> DHT11 - SUHU
+            </div>
+            
+            <div class="sensor-main-val" id="val-jarak">--</div>
+            
+            <div class="sensor-subtext">Suhu udara taman</div>
+            
+            <div id="bar-jarak" style="display:none;"></div>
+            <div class="alert-banner" id="alertEmber"></div>
+        </div>
+
+        <div class="card card-relay-box cell-relay" id="card-relay">
+            <div class="relay-bolt">⚡</div>
+            <div class="relay-name-title">Relay</div>
+            <div class="relay-pin-info">📌 pin P13 . Untuk mengontrol nyala dan matinya kipas</div>
+            
+            <div class="relay-status-text" id="lbl-relay">Off</div>
+            
+            <div class="relay-toggle-container" id="manual-relay" style="display:none;">
+                <label class="toggle-switch-horiz">
+                    <input type="checkbox" id="sw-relay" onchange="window.toggleRelay(this.checked)">
+                    <span class="slider-horiz"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="cell-charts-area charts-container">
+            <div class="mini-chart-card">
+                <div class="mini-chart-title">Grafik Tren Jarak Utama (cm)</div>
+                <div style="height: 65px;"><canvas id="chart-jarak"></canvas></div>
+                <div style="height: 0px; overflow:hidden;"><canvas id="chart-jarak-big"></canvas></div>
+            </div>
+            <div class="mini-chart-card" id="card-ember">
+                <div class="mini-chart-title" style="color: var(--text-muted);">Monitoring Jarak Manual (cm)</div>
+                <div style="height: 65px;"><canvas id="chart-jarak-manual"></canvas></div>
+                <div style="height: 0px; overflow:hidden;"><canvas id="chart-jarak-manual-big"></canvas></div>
+                <div id="val-jarak-manual" style="display:none;"></div>
+                <div id="bar-jarak-manual" style="display:none;"></div>
+                <span id="ember-emoji" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="card card-terminal-window cell-terminal">
+            <div class="terminal-header-bar">
+                <div class="window-dots">
+                    <div class="window-dot wd-r"></div>
+                    <div class="window-dot wd-y"></div>
+                    <div class="window-dot wd-g"></div>
+                </div>
+                <div class="terminal-title-text">System_terminal</div>
+                <button id="btnClearLog" style="background:transparent; border:none; color:#ff9ebe; cursor:pointer; font-size:0.8em;"><i class="fas fa-trash"></i> Clear</button>
+            </div>
+            
+            <div class="terminal-log-box" id="terminalLog"></div>
+            
+            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/pngwing.com%20(5).png?raw=true" class="pusheen-bottom-center" alt="decor">
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, deleteApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const state = {
+    db: null, path: "", unsub: null, data: {},
+    device: null, txChar: null, rxChar: null,
+    bleConnected: false, bleBuffer: "",
+    modeOtomatis: 1,   
+    charts: {},
+    history: {
+        jarak:        { labels: [], data: [] },
+        jarak_manual: { labels: [], data: [] }
+    }
+};
+
+const MAX_PTS = 30;
+const $ = id => document.getElementById(id);
+
+function log(msg, color = "#ffb7d5") {
+    const t = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    $('terminalLog').insertAdjacentHTML('afterbegin',
+        `<div class="log-line"><span class="log-time">[${t}]</span><span style="color:${color}"> ${msg}</span></div>`);
 }
 
-.bg-overlay{
-    position:fixed;
-    inset:0;
-    backdrop-filter:blur(10px);
-    background:rgba(255,255,255,0.15);
-    z-index:0;
+function updateBTStatus() {
+    $('btn-connect-ble').disabled    = state.bleConnected;
+    $('btn-disconnect-ble').disabled = !state.bleConnected;
+    const b = $('status-bt');
+    b.innerHTML = state.bleConnected
+        ? '<i class="fab fa-bluetooth-b"></i> BT Connected'
+        : '<i class="fab fa-bluetooth-b"></i> BT Offline';
+    b.className = 'status-pill' + (state.bleConnected ? ' online' : '');
+}
+function updateDBStatus(ok) {
+    const b = $('status-fb');
+    b.innerHTML = ok
+        ? '<i class="fas fa-cloud"></i> DB Synced'
+        : '<i class="fas fa-cloud"></i> DB Offline';
+    b.className = 'status-pill' + (ok ? ' online' : '');
 }
 
-/* =========================
-   MAIN UI
-========================= */
-
-.main-ui{
-    width:100%;
-    max-width:1450px;
-    margin:auto;
-    padding:20px;
-    position:relative;
-    z-index:2;
-
-    display:grid;
-    grid-template-columns: 1.25fr 0.38fr 0.65fr;
-    grid-template-rows:auto auto auto;
-    gap:20px;
-}
-
-/* =========================
-   TITLE
-========================= */
-
-.title-wrap{
-    grid-column:1/3;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    position:relative;
-}
-
-.title-img{
-    width:700px;
-    max-width:100%;
-}
-
-/* =========================
-   CARD
-========================= */
-
-.cute-card{
-    background:#f7f7f7;
-    border-radius:22px;
-    position:relative;
-    overflow:hidden;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
-}
-
-/* =========================
-   SUHU
-========================= */
-
-.suhu-card{
-    height:275px;
-    padding:28px 40px;
-}
-
-.mini-title{
-    font-size:20px;
-    color:#b48acb;
-    font-weight:900;
-}
-
-.suhu-value{
-    margin-top:50px;
-    font-size:90px;
-    color:#ff2f2f;
-    font-weight:900;
-    letter-spacing:10px;
-}
-
-.suhu-desc{
-    margin-top:10px;
-    color:#b7b7b7;
-    font-weight:700;
-    font-size:28px;
-}
-
-/* =========================
-   FIREBASE
-========================= */
-
-.firebase-card{
-    grid-column:1/2;
-    height:585px;
-    padding:30px 50px;
-}
-
-.firebase-title{
-    font-size:42px;
-    font-weight:900;
-    color:#d4288d;
-    margin-bottom:35px;
-}
-
-.firebase-card label{
-    display:block;
-    margin-top:25px;
-    margin-bottom:10px;
-
-    color:#c11f7d;
-    font-size:30px;
-    font-weight:900;
-}
-
-.firebase-card input{
-    width:100%;
-    height:60px;
-    border-radius:20px;
-    border:5px solid #ff4aa9;
-    background:white;
-
-    font-size:20px;
-    padding:0 20px;
-}
-
-.firebase-btn{
-    margin-top:40px;
-    width:520px;
-    max-width:100%;
-    height:72px;
-
-    border:none;
-    border-radius:40px;
-
-    background:#ff43a5;
-    color:white;
-
-    font-size:28px;
-    font-weight:900;
-    cursor:pointer;
-}
-
-/* =========================
-   MODE
-========================= */
-
-.mode-card{
-    height:585px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-}
-
-.mode-title{
-    font-size:52px;
-    font-weight:900;
-    color:#ff72bb;
-}
-
-.mode-bottom{
-    font-size:42px;
-    font-weight:900;
-    color:#e7d84e;
-    margin-top:20px;
-}
-
-/* =========================
-   SWITCH
-========================= */
-
-.switch{
-    position:relative;
-    display:inline-block;
-    width:100px;
-    height:180px;
-    margin-top:20px;
-}
-
-.switch input{
-    opacity:0;
-}
-
-.slider{
-    position:absolute;
-    inset:0;
-    background:#f1eba2;
-    border-radius:60px;
-}
-
-.slider:before{
-    content:"";
-    position:absolute;
-    width:72px;
-    height:72px;
-    border-radius:50%;
-    background:#f7b9d5;
-    left:14px;
-    top:14px;
-    transition:0.4s;
-}
-
-.switch input:checked + .slider:before{
-    transform:translateY(80px);
-}
-
-/* =========================
-   RELAY
-========================= */
-
-.relay-card{
-    height:585px;
-    padding:30px;
-    text-align:center;
-}
-
-.relay-light{
-    width:120px;
-    margin-top:10px;
-}
-
-.relay-title{
-    margin-top:20px;
-    font-size:56px;
-    font-weight:900;
-    color:#e46d3f;
-}
-
-.relay-desc{
-    margin-top:20px;
-    color:#9f9f9f;
-    font-size:26px;
-    line-height:1.5;
-    font-weight:700;
-}
-
-.relay-status{
-    margin-top:30px;
-    font-size:58px;
-    color:#999;
-    font-weight:900;
-}
-
-/* =========================
-   TERMINAL
-========================= */
-
-.terminal-card{
-    grid-column:2/4;
-
-    background:#6b0f49;
-    border-radius:35px;
-
-    height:380px;
-    overflow:hidden;
-    position:relative;
-}
-
-.terminal-header{
-    height:62px;
-    display:flex;
-    align-items:center;
-    padding:0 25px;
-    gap:20px;
-}
-
-.dots{
-    display:flex;
-    gap:12px;
-}
-
-.dot{
-    width:18px;
-    height:18px;
-    border-radius:50%;
-}
-
-.red{background:#ff5f57;}
-.yellow{background:#febc2e;}
-.green{background:#28c840;}
-
-.terminal-title{
-    color:#ff59c2;
-    font-size:22px;
-}
-
-.terminal-log{
-    width:calc(100% - 50px);
-    height:280px;
-    background:black;
-    margin:auto;
-    border-radius:10px;
-    overflow:auto;
-    padding:20px;
-    color:#7dff8a;
-    font-family:monospace;
-}
-
-/* =========================
-   CHARTS
-========================= */
-
-.chart-left{
-    position:absolute;
-    left:-40px;
-    bottom:10px;
-    width:180px;
-}
-
-.chart-bottom{
-    position:absolute;
-    right:20px;
-    bottom:10px;
-    width:180px;
-}
-
-.chart-suhu{
-    position:absolute;
-    right:30px;
-    top:80px;
-    width:160px;
-}
-
-.chart-auto{
-    position:absolute;
-    bottom:40px;
-    width:110px;
-}
-
-.relay-light{
-    width:100px;
-}
-
-/* =========================
-   HIASAN
-========================= */
-
-.deco{
-    position:fixed;
-    z-index:1;
-    pointer-events:none;
-}
-
-.deco-left{
-    left:-20px;
-    bottom:0;
-    width:230px;
-}
-
-.deco-right{
-    right:-10px;
-    top:160px;
-    width:180px;
-}
-
-.vector{
-    position:fixed;
-    z-index:1;
-}
-
-.vector-1{
-    top:70px;
-    left:210px;
-    width:60px;
-}
-
-.vector-2{
-    top:100px;
-    right:520px;
-    width:80px;
-}
-
-.star{
-    position:fixed;
-    top:40px;
-    right:550px;
-    width:70px;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:1200px){
-
-    .main-ui{
-        grid-template-columns:1fr;
+function applyMode(isAuto) {
+    state.modeOtomatis = isAuto ? 1 : 0;
+    const customSwitch = $('customVerticalSwitch');
+
+    if (isAuto) {
+        if(customSwitch) { customSwitch.className = "vertical-switch auto"; }
+        $('manual-relay').style.display = 'none';
+    } else {
+        if(customSwitch) { customSwitch.className = "vertical-switch manual"; }
+        $('manual-relay').style.display = 'block';
     }
 
-    .title-wrap,
-    .firebase-card,
-    .terminal-card{
-        grid-column:auto;
-    }
-
-    .firebase-card,
-    .relay-card,
-    .mode-card,
-    .suhu-card{
-        height:auto;
-    }
-
+    sendBLE("mode", isAuto ? 1 : 0);
+    if (state.db) update(ref(state.db, `${state.path}/mode`), { value: isAuto ? 1 : 0 });
+    log(`Mode → ${isAuto ? 'OTOMATIS' : 'MANUAL'}`, isAuto ? '#ff9ebe' : '#ffd24c');
 }
 
-</style>
+// Hooking custom switch asset click trigger directly to core toggle interface
+$('customVerticalSwitch').onclick = () => applyMode(state.modeOtomatis === 0);
+$('btnToggleMode').onclick = () => applyMode(state.modeOtomatis === 0);
+
+function updateRelayUI(isOn) {
+    const card = $('card-relay');
+    const sw   = $('sw-relay');
+    if(isOn) {
+        card.classList.add('on');
+    } else {
+        card.classList.remove('on');
+    }
+    $('lbl-relay').textContent = isOn ? 'On ✓' : 'Off';
+    if (sw && document.activeElement !== sw) sw.checked = isOn;
+}
+
+function updateSensorUI(key, val) {
+    const elId = key === 'jarak_manual' ? 'val-jarak-manual' : `val-${key}`;
+    const barId = key === 'jarak_manual' ? 'bar-jarak-manual' : `bar-${key}`;
+    const el = $(elId);
+    if (!el) return;
+
+    let numSpan = el.querySelector('.num');
+    if (!numSpan) {
+        el.innerHTML = `<span class="num">${val}</span><span class="sensor-unit">°</span>`;
+    } else {
+        numSpan.textContent = val;
+    }
+
+    const bar = $(barId);
+    if (bar) bar.style.width = Math.min(100, (val / 150) * 100) + '%';
+
+    if (key === 'jarak_manual') {
+        const alert = $('alertEmber');
+        const emoji = $('ember-emoji');
+        const card  = $('card-ember');
+        if (val > 30) {
+            alert.classList.add('show');
+            if (emoji) emoji.textContent = '🚨';
+        } else {
+            alert.classList.remove('show');
+            if (emoji) emoji.textContent = '🪣';
+        }
+    }
+}
+
+const SVC = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const TX  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+const RX  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+async function connectBLE() {
+    try {
+        if (!navigator.bluetooth) throw new Error("Browser tidak mendukung Web Bluetooth.");
+        log("Scanning Micro:bit...", "#ffd24c");
+        state.device = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: "BBC micro:bit" }],
+            optionalServices: [SVC]
+        });
+        state.device.addEventListener("gattserverdisconnected", () => {
+            state.bleConnected = false; updateBTStatus();
+            log("BLE Terputus!", "#ff5f56");
+        });
+        const server  = await state.device.gatt.connect();
+        const service = await server.getPrimaryService(SVC);
+        state.txChar  = await service.getCharacteristic(TX);
+        state.rxChar  = await service.getCharacteristic(RX);
+        await state.txChar.startNotifications();
+        state.txChar.addEventListener("characteristicvaluechanged", onBLEData);
+        state.bleConnected = true; updateBTStatus();
+        log(`✓ Terhubung: ${state.device.name}`, "#ff9ebe");
+    } catch (e) { log(`BLE Error: ${e.message}`, "#ff5f56"); }
+}
+
+function onBLEData(event) {
+    let arr = [];
+    for (let i = 0; i < event.target.value.byteLength; i++)
+        arr.push(event.target.value.getUint8(i));
+    state.bleBuffer += String.fromCharCode.apply(null, arr);
+    const lines = state.bleBuffer.split('\n');
+    state.bleBuffer = lines.pop() || "";
+    lines.forEach(line => { const t = line.trim(); if (t) processBLELine(t); });
+}
+
+function processBLELine(txt) {
+    log(`RX ← ${txt}`, "#ffb7d5");
+    if (!txt.includes(',')) return;
+
+    const idx = txt.indexOf(',');
+    const key = txt.substring(0, idx).trim();
+    const val = parseFloat(txt.substring(idx + 1).trim());
+    if (isNaN(val)) return;
+
+    if (key === "mode") {
+        applyMode(val === 1);
+        return;
+    }
+    if (key === "Relay") {
+        updateRelayUI(val === 1);
+        if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val, tipe: 'switch' });
+        return;
+    }
+    if (key === "jarak") {
+        updateSensorUI("jarak", val);
+        pushHistory("jarak", val);
+        if (state.db) update(ref(state.db, `${state.path}/jarak`), { value: val, tipe: 'sensor', satuan: 'cm' });
+        return;
+    }
+    if (key === "jarak_manual") {
+        updateSensorUI("jarak_manual", val);
+        pushHistory("jarak_manual", val);
+        if (state.db) update(ref(state.db, `${state.path}/jarak_manual`), { value: val, tipe: 'sensor', satuan: 'cm' });
+        return;
+    }
+}
+
+async function sendBLE(key, val) {
+    if (!state.rxChar) return;
+    const payload = `${key},${val}\n`;
+    try {
+        await state.rxChar.writeValue(new TextEncoder().encode(payload));
+        log(`TX → ${payload.trim()}`, "#ffd24c");
+    } catch (e) { log(`TX Error: ${e.message}`, "#ff5f56"); }
+}
+
+window.toggleRelay = (isChecked) => {
+    if (state.modeOtomatis === 1) return;
+    const val = isChecked ? 1 : 0;
+    updateRelayUI(isChecked);
+    sendBLE("Relay", val);
+    if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
+    log(`Relay → ${isChecked ? 'ON' : 'OFF'}`, "#ffd24c");
+};
+
+async function connectFirebase() {
+    const apiKey = $('fb-apiKey').value.trim();
+    const dbUrl  = $('fb-dbUrl').value.trim();
+    const path   = $('fb-path').value.trim() || "smarthome/ruangan1";
+    if (!apiKey || !dbUrl) { alert("Isi API Key dan Database URL!"); return; }
+
+    try {
+        const apps = getApps();
+        if (apps.length > 0) await deleteApp(apps[0]);
+        if (state.unsub) state.unsub();
+
+        const app = initializeApp({
+            apiKey, databaseURL: dbUrl,
+            projectId: dbUrl.replace("https://","").split(".")[0]
+        });
+        state.db   = getDatabase(app);
+        state.path = path;
+        log(`Menghubungkan → /${path}`, "#ffd24c");
+
+        const initData = {
+            jarak:        { tipe: 'sensor', value: 0, satuan: 'cm' },
+            jarak_manual: { tipe: 'sensor', value: 0, satuan: 'cm' },
+            relay:        { tipe: 'switch', value: 0 },
+            mode:         { tipe: 'switch', value: 1 }
+        };
+
+        state.unsub = onValue(ref(state.db, path), (snap) => {
+            const d = snap.val();
+            if (!d) { set(ref(state.db, path), initData); return; }
+            state.data = d;
+            updateDBStatus(true);
+
+            if (d.jarak)        updateSensorUI("jarak",        d.jarak.value ?? 0);
+            if (d.jarak_manual) updateSensorUI("jarak_manual", d.jarak_manual.value ?? 0);
+            if (d.relay)        updateRelayUI((d.relay.value ?? 0) === 1);
+            if (d.mode)         applyMode((d.mode.value ?? 1) === 1);
+        }, err => { log(`DB Error: ${err.message}`, "#ff5f56"); updateDBStatus(false); });
+
+        log(`✓ Firebase OK: /${path}`, "#ff9ebe");
+        localStorage.setItem('smarthome_cfg', JSON.stringify({ apiKey, dbUrl, path }));
+    } catch (e) { log(`DB Error: ${e.message}`, "#ff5f56"); updateDBStatus(false); }
+}
+
+const CHART_CFG = {
+    jarak:        { color: '#ff65a3', label: 'Jarak' },
+    jarak_manual: { color: '#7ca6df', label: 'Jarak Manual' }
+};
+
+function makeChart(canvasId, key, height = 90) {
+    const canvas = $(canvasId);
+    if (!canvas) return null;
+    if (state.charts[canvasId]) state.charts[canvasId].destroy();
+
+    const ctx   = canvas.getContext('2d');
+    const color = CHART_CFG[key].color;
+    const grad  = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, color + '55');
+    grad.addColorStop(1, color + '00');
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels:   state.history[key].labels,
+            datasets: [{ data: state.history[key].data, borderColor: color, backgroundColor: grad, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: { y: { display: false }, x: { display: false } },
+            animation: { duration: 200 }
+        }
+    });
+}
+
+function initCharts() {
+    state.charts['chart-jarak']         = makeChart('chart-jarak', 'jarak', 70);
+    state.charts['chart-jarak-manual']  = makeChart('chart-jarak-manual', 'jarak_manual', 70);
+    state.charts['chart-jarak-big']     = makeChart('chart-jarak-big', 'jarak', 120);
+    state.charts['chart-jarak-manual-big'] = makeChart('chart-jarak-manual-big', 'jarak_manual', 120);
+}
+
+function pushHistory(key, val) {
+    const h = state.history[key];
+    if (!h) return;
+    h.labels.push(new Date().toLocaleTimeString('id-ID', { hour12: false }));
+    h.data.push(parseFloat(val) || 0);
+    if (h.labels.length > MAX_PTS) { h.labels.shift(); h.data.shift(); }
+
+    [`chart-${key}`, `chart-${key}-big`].forEach(id => {
+        const ch = state.charts[id];
+        if (!ch) return;
+        ch.data.labels           = h.labels;
+        ch.data.datasets[0].data = h.data;
+        ch.update('none');
+    });
+}
+
+$('btn-connect-ble').onclick    = connectBLE;
+$('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
+$('btn-connect-fb').onclick     = connectFirebase;
+$('btnClearLog').onclick        = () => $('terminalLog').innerHTML = '';
+
+window.onload = () => {
+    initCharts();
+    applyMode(true);
+    const saved = JSON.parse(localStorage.getItem('smarthome_cfg') || '{}');
+    if (saved.apiKey) {
+        $('fb-apiKey').value = saved.apiKey;
+        $('fb-dbUrl').value  = saved.dbUrl;
+        $('fb-path').value   = saved.path || "smarthome/ruangan1";
+    }
+    log("✓ Smart Garden Hidroponik siap — hubungkan Firebase & Micro:bit 🌱", "#ff9ebe");
+};
+</script>
+</body>
+</html>
