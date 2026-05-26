@@ -1,1032 +1,558 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Little Pusheen 🌸</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --pink:        #d72f8a;
-            --pink-light:  #f06bbb;
-            --pink-pale:   #fce4f3;
-            --pink-glow:   rgba(215,47,138,0.20);
-            --purple:      #7b2d8b;
-            --purple-light:#c084d8;
-            --yellow:      #ffe566;
-            --teal:        #0d9488;
-            --dark-term:   #3b0a2a;
-            --dark2:       #5c1a45;
-            --text:        #3a0030;
-            --text-muted:  #a0567a;
-            --card-bg:     rgba(255,255,255,0.92);
-            --radius:      20px;
-            --radius-sm:   12px;
-            --danger:      #e53935;
-            --warning:     #f59e0b;
-        }
+<!-- =========================
+     TAMBAHKAN DI <body>
+========================= -->
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            min-height: 100vh;
-            background: url('https://i.pinimg.com/webp/1200x/b7/6d/5f/b76d5f2ffb21263b588c23618d97ee9a.webp') center center / cover fixed;
-            color: var(--text);
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* light overlay so cards pop */
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background: rgba(255,200,230,0.18);
-            pointer-events: none; z-index: 0;
-        }
-
-        /* ─── PAGE SHELL ─── */
-        .page {
-            position: relative; z-index: 1;
-            min-height: 100vh;
-            display: grid;
-            /* LEFT (firebase) | RIGHT (header + controls) */
-            grid-template-columns: 420px 1fr;
-            grid-template-rows: auto 1fr;
-            gap: 0;
-        }
-
-        /* ─── LEFT COLUMN ─── */
-        .col-left {
-            padding: 28px 20px 28px 28px;
-            display: flex; flex-direction: column; gap: 16px;
-        }
-
-        /* ─── RIGHT COLUMN ─── */
-        .col-right {
-            padding: 20px 28px 28px 8px;
-            display: flex; flex-direction: column; gap: 14px;
-        }
-
-        /* ─── HEADER (center top of right col) ─── */
-        .mlp-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 12px;
-            padding-bottom: 4px;
-            position: relative;
-        }
-
-        .mlp-logo-wrap {
-            text-align: center;
-            flex: 1;
-        }
-
-        .mlp-logo {
-            display: inline-block;
-            background: rgba(255,255,255,0.82);
-            border-radius: 22px;
-            padding: 10px 32px 8px;
-            box-shadow: 0 4px 24px rgba(215,47,138,0.18);
-        }
-
-        .mlp-logo .my-txt {
-            font-family: 'Baloo 2', cursive;
-            font-size: 2em; font-weight: 800;
-            color: #fff;
-            background: linear-gradient(135deg, #9c27b0, #d72f8a);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
-            display: block; line-height: 1;
-        }
-
-        .mlp-logo .little-txt {
-            font-family: 'Baloo 2', cursive;
-            font-size: 1em; font-weight: 600;
-            color: #c060a0;
-            display: block; line-height: 1; margin: 1px 0;
-            letter-spacing: 4px;
-        }
-
-        .mlp-logo .pusheen-txt {
-            font-family: 'Baloo 2', cursive;
-            font-size: 2.4em; font-weight: 800;
-            letter-spacing: 2px;
-            display: block; line-height: 1;
-            background: linear-gradient(135deg, #7b2d8b, #d72f8a, #f06bbb);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .rainbow-stripe {
-            height: 6px;
-            border-radius: 3px;
-            background: linear-gradient(90deg,#9c27b0,#e91e8c,#ff6ec7,#ffe066,#a5d6a7,#4fc3f7);
-            margin: 6px 0 2px;
-        }
-
-        /* stars around logo */
-        .star { font-size: 1.4em; animation: starBob 3s ease-in-out infinite alternate; }
-        .star.s1 { animation-delay: 0s; }
-        .star.s2 { animation-delay: .5s; font-size: 1em; }
-        .star.s3 { animation-delay: 1s; font-size: 1.1em; }
-        @keyframes starBob {
-            from { transform: translateY(0) rotate(-5deg); }
-            to   { transform: translateY(-8px) rotate(5deg); }
-        }
-
-        /* ─── STATUS BADGE (top-right fixed) ─── */
-        .status-wrap {
-            position: fixed; top: 18px; right: 18px;
-            display: flex; flex-direction: column; gap: 7px; z-index: 1000;
-        }
-        .badge {
-            background: rgba(255,255,255,0.93);
-            padding: 7px 16px; border-radius: 30px;
-            font-size: 11.5px; font-weight: 700;
-            display: flex; align-items: center; gap: 7px;
-            box-shadow: 0 3px 14px rgba(215,47,138,0.12);
-            border: 1.5px solid rgba(215,47,138,0.15);
-            color: var(--text-muted); transition: all .3s;
-        }
-        .badge.online { color: var(--pink); border-color: rgba(215,47,138,0.3); background: rgba(252,228,243,0.97); }
-
-        /* ─── CARDS ─── */
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(18px);
-            border-radius: var(--radius);
-            border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 6px 28px rgba(215,47,138,0.10);
-            padding: 24px;
-            animation: fadeUp .45s ease both;
-        }
-        @keyframes fadeUp {
-            from { opacity:0; transform:translateY(14px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
-
-        .card-title {
-            font-family: 'Baloo 2', cursive;
-            font-size: 1.05em; font-weight: 700;
-            color: var(--pink); margin-bottom: 16px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .card-title .icon-circle {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--pink), var(--pink-light));
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: .8em; flex-shrink: 0;
-        }
-
-        /* ─── INPUTS ─── */
-        label {
-            display: block;
-            font-family: 'Baloo 2', cursive;
-            font-size: .95em; font-weight: 700;
-            color: var(--pink); margin-bottom: 5px;
-        }
-        input, select {
-            width: 100%; padding: 10px 14px;
-            border: 2px solid #f8bbd0;
-            border-radius: var(--radius-sm);
-            font-size: .88em; font-family: 'Nunito', sans-serif;
-            color: var(--text); background: rgba(255,255,255,0.95); outline: none;
-            transition: all .3s; font-weight: 600;
-            margin-bottom: 10px;
-        }
-        input:focus, select:focus {
-            border-color: var(--pink-light);
-            box-shadow: 0 0 0 3px var(--pink-glow);
-        }
-        input[type=password] { font-family: 'Space Mono', monospace; }
-
-        /* ─── BUTTONS ─── */
-        .btn {
-            background: linear-gradient(135deg, var(--pink), var(--pink-light));
-            color: white; border: none;
-            padding: 11px 22px; border-radius: 30px;
-            font-family: 'Baloo 2', cursive;
-            font-size: .95em; font-weight: 700; letter-spacing: .3px;
-            display: inline-flex; align-items: center; gap: 8px;
-            transition: all .22s; white-space: nowrap; cursor: pointer;
-            box-shadow: 0 4px 14px rgba(215,47,138,0.25);
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px var(--pink-glow); filter: brightness(1.07); }
-        .btn:disabled { background: #d1d5db; cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
-        .btn-outline { background: transparent; color: var(--pink); border: 2px solid var(--pink); box-shadow: none; }
-        .btn-outline:hover { background: var(--pink); color: white; }
-        .btn-dark { background: linear-gradient(135deg, #5c1a45, #3b0a2a); box-shadow: 0 4px 14px rgba(40,0,30,.25); }
-        .btn-dark:hover { box-shadow: 0 8px 20px rgba(40,0,30,.4); }
-        .btn-danger { background: linear-gradient(135deg, #e53935, #ef9a9a); }
-        .btn-sm { padding: 7px 14px; font-size: .82em; }
-        .btn-full { width: 100%; justify-content: center; margin-top: 10px; }
-
-        /* ─── RIGHT TOP: DHT11 sensor card (top right, small) ─── */
-        .dht-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 6px 28px rgba(215,47,138,0.10);
-            padding: 18px 20px 14px;
-            animation: fadeUp .4s ease both;
-            min-width: 220px;
-            align-self: flex-start;
-        }
-        .dht-title {
-            font-family: 'Space Mono', monospace;
-            font-size: .78em; font-weight: 700; color: var(--text-muted);
-            display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
-        }
-        .dht-val-row {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 6px;
-        }
-        .dht-bars { display: flex; gap: 5px; align-items: flex-end; }
-        .dht-bar {
-            width: 28px; height: 8px; border-radius: 4px;
-            background: var(--pink);
-        }
-        .dht-unit {
-            font-family: 'Space Mono', monospace;
-            font-size: 1em; color: var(--text-muted);
-            margin-left: 2px;
-        }
-        .dht-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: #ccc; border: 2px solid #bbb;
-            margin-left: auto;
-        }
-        .dht-label {
-            font-size: .75em; color: var(--text-muted); font-weight: 600;
-            font-family: 'Space Mono', monospace;
-        }
-
-        /* ─── RIGHT ROW: Mode toggle card + Relay card ─── */
-        .controls-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        /* Mode toggle card */
-        .mode-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 6px 28px rgba(215,47,138,0.10);
-            padding: 22px 20px;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 10px;
-            animation: fadeUp .5s ease both;
-        }
-        .mode-label-top {
-            font-family: 'Baloo 2', cursive;
-            font-size: 1.1em; font-weight: 700; color: var(--pink);
-            letter-spacing: 1px;
-        }
-        .mode-label-bottom {
-            font-family: 'Baloo 2', cursive;
-            font-size: 1.1em; font-weight: 700; color: var(--text-muted);
-            letter-spacing: 1px;
-        }
-
-        /* big toggle switch */
-        .big-toggle { position: relative; display: inline-block; width: 70px; height: 110px; }
-        .big-toggle input { opacity: 0; width: 0; height: 0; }
-        .big-toggle-slider {
-            position: absolute; cursor: pointer; inset: 0;
-            background: var(--yellow);
-            border-radius: 35px;
-            border: 3px solid rgba(200,160,0,0.3);
-            transition: .4s;
-        }
-        .big-toggle-slider:before {
-            position: absolute; content: '';
-            height: 56px; width: 56px;
-            left: 4px; top: 4px;
-            background: white;
-            border-radius: 50%;
-            transition: .4s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.18);
-        }
-        .big-toggle input:checked + .big-toggle-slider:before {
-            transform: translateY(46px);
-        }
-        .big-toggle input:checked + .big-toggle-slider {
-            background: var(--yellow);
-        }
-
-        /* decorative stars on mode card */
-        .mode-star { font-size: 1.3em; }
-
-        /* Relay card */
-        .relay-card {
-            background: var(--card-bg);
-            border-radius: var(--radius); padding: 22px 20px;
-            border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 6px 28px rgba(215,47,138,0.10);
-            display: flex; flex-direction: column; align-items: center;
-            gap: 8px; transition: all .4s; position: relative; overflow: hidden;
-            animation: fadeUp .55s ease both;
-        }
-        .relay-card.on {
-            box-shadow: 0 0 0 3px rgba(215,47,138,.35), 0 14px 44px rgba(215,47,138,.18);
-            border-color: rgba(215,47,138,.45);
-            background: rgba(252,228,243,.97);
-        }
-        .relay-glow {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-            width: 180px; height: 180px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(215,47,138,.2), transparent 70%);
-            pointer-events: none; opacity: 0; transition: opacity .5s;
-        }
-        .relay-card.on .relay-glow { opacity: 1; }
-        .relay-icon-big { font-size: 3.2em; transition: all .4s; position: relative; z-index: 1; }
-        .relay-card.on  .relay-icon-big { filter: drop-shadow(0 0 12px rgba(215,47,138,.9)); }
-        .relay-card.off .relay-icon-big { filter: grayscale(.6) opacity(.55); }
-        .relay-name {
-            font-family: 'Baloo 2', cursive;
-            font-size: 1.2em; font-weight: 700; color: var(--pink);
-            position: relative; z-index: 1;
-        }
-        .relay-pin { font-size: .72em; color: var(--text-muted); font-weight: 600; text-align: center; line-height: 1.4; }
-        .relay-status {
-            font-family: 'Space Mono', monospace;
-            font-size: 1.25em; font-weight: 700; position: relative; z-index: 1;
-        }
-        .relay-card.on  .relay-status { color: var(--pink); }
-        .relay-card.off .relay-status { color: #9ca3af; }
-
-        /* small toggle for manual relay */
-        .toggle-wrap { display: flex; align-items: center; gap: 10px; margin-top: 4px; position: relative; z-index: 1; }
-        .toggle-lbl { font-family: 'Baloo 2', cursive; font-size: .85em; color: var(--text-muted); }
-        .toggle { position: relative; display: inline-block; width: 54px; height: 28px; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer; inset: 0;
-            background: #f8bbd0; transition: .4s; border-radius: 28px;
-        }
-        .toggle-slider:before {
-            position: absolute; content: ''; height: 20px; width: 20px;
-            left: 4px; bottom: 4px; background: white;
-            transition: .4s; border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,.2);
-        }
-        input:checked + .toggle-slider { background: linear-gradient(135deg, var(--pink), var(--pink-light)); }
-        input:checked + .toggle-slider:before { transform: translateX(26px); }
-
-        /* ─── SENSOR SECTION in left col ─── */
-        .sec-label {
-            font-family: 'Baloo 2', cursive;
-            font-size: .95em; font-weight: 700; color: var(--pink);
-            display: flex; align-items: center; gap: 8px;
-            margin: 4px 0 2px;
-        }
-        .sec-label::after {
-            content: ''; flex: 1; height: 2px;
-            background: linear-gradient(90deg, rgba(215,47,138,.3), transparent);
-            border-radius: 2px;
-        }
-
-        /* sensor cards small */
-        .sensor-big {
-            background: var(--card-bg);
-            border-radius: var(--radius); padding: 20px;
-            border: 2px solid rgba(255,255,255,.95);
-            box-shadow: 0 6px 28px rgba(215,47,138,.08);
-            display: flex; flex-direction: column; gap: 5px;
-            position: relative; overflow: hidden;
-            transition: transform .3s;
-        }
-        .sensor-big:hover { transform: translateY(-3px); }
-        .sensor-tag { font-size: .72em; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); }
-        .sensor-emoji { font-size: 1.6em; margin: 3px 0; }
-        .sensor-val {
-            font-family: 'Space Mono', monospace;
-            font-size: 2.4em; font-weight: 700; line-height: 1;
-            color: var(--pink);
-        }
-        .sensor-val.teal { color: var(--teal); }
-        .sensor-unit { font-size: .38em; font-weight: 400; color: var(--text-muted); margin-left: 3px; }
-        .sensor-desc { font-size: .74em; color: var(--text-muted); font-weight: 600; }
-        .sensor-bar { height: 6px; background: #fce4ec; border-radius: 3px; margin-top: 8px; overflow: hidden; }
-        .sensor-bar-fill {
-            height: 100%; border-radius: 3px;
-            background: linear-gradient(90deg, var(--pink-light), var(--purple-light));
-            transition: width .5s ease;
-        }
-        .chart-wrap { height: 60px; width: 100%; margin-top: 8px; }
-
-        /* ─── MODE BANNER (mode info strip) ─── */
-        .mode-banner {
-            background: linear-gradient(135deg, rgba(215,47,138,.06), rgba(123,45,139,.06));
-            border: 1.5px solid rgba(215,47,138,.18);
-            border-radius: var(--radius); padding: 14px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 10px;
-        }
-        .mode-info h3 { font-family: 'Baloo 2', cursive; font-size: .95em; font-weight: 700; color: var(--pink); margin-bottom: 1px; }
-        .mode-info p  { font-size: .76em; color: var(--text-muted); }
-        .mode-pill {
-            padding: 6px 18px; border-radius: 30px;
-            font-family: 'Baloo 2', cursive; font-size: .88em; font-weight: 700;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .mode-pill.auto   { background: rgba(215,47,138,.1); color: var(--pink); border: 1.5px solid rgba(215,47,138,.28); }
-        .mode-pill.manual { background: rgba(245,158,11,.1); color: var(--warning); border: 1.5px solid rgba(245,158,11,.28); }
-
-        /* ─── ALERT ─── */
-        .alert-banner {
-            display: none;
-            background: linear-gradient(135deg, #fff8e1, #ffe082);
-            border: 2px solid #f59e0b; border-radius: var(--radius);
-            padding: 16px 22px; margin-bottom: 0;
-            animation: alertPulse 2s ease-in-out infinite; position: relative; overflow: hidden;
-        }
-        .alert-banner.show { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-        @keyframes alertPulse {
-            0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4);}
-            50%{box-shadow:0 0 0 8px rgba(245,158,11,0);}
-        }
-        .alert-icon { font-size: 2.2em; flex-shrink: 0; animation: shake 1s ease infinite; }
-        @keyframes shake {
-            0%,100%{transform:rotate(0)} 20%{transform:rotate(-8deg)} 40%{transform:rotate(8deg)}
-            60%{transform:rotate(-5deg)} 80%{transform:rotate(5deg)}
-        }
-        .alert-body h3 { font-family: 'Baloo 2', cursive; font-size: .98em; color: #92400e; margin-bottom: 3px; }
-        .alert-body p  { font-size: .8em; color: #b45309; font-weight: 600; line-height: 1.5; }
-        .alert-badge {
-            margin-left: auto; background: #f59e0b; color: white;
-            padding: 6px 16px; border-radius: 20px;
-            font-family: 'Baloo 2', cursive; font-size: .88em;
-            box-shadow: 0 4px 12px rgba(245,158,11,.4); flex-shrink: 0;
-        }
-
-        /* ─── CHARTS row ─── */
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-        /* ─── TERMINAL ─── */
-        .terminal {
-            background: #2a001e;
-            border-radius: var(--radius); padding: 18px 20px;
-            border: 2px solid rgba(215,47,138,.22);
-        }
-        .terminal-hdr {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-        }
-        .terminal-title {
-            color: #f472b6; font-family: 'Space Mono', monospace;
-            font-size: .84em; display: flex; align-items: center; gap: 8px;
-        }
-        .dot { width: 11px; height: 11px; border-radius: 50%; }
-        .dot.r { background: #ef4444; } .dot.y { background: #f59e0b; } .dot.g { background: #ec4899; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-        .log-panel {
-            height: 170px; overflow-y: auto;
-            font-family: 'Space Mono', monospace;
-            background: rgba(0,0,0,.5); border-radius: 8px; padding: 12px;
-            font-size: 11.5px; color: #f9a8d4;
-        }
-        .log-panel::-webkit-scrollbar { width: 4px; }
-        .log-panel::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 4px; }
-        .log-line { margin-bottom: 3px; line-height: 1.6; }
-        .log-time { color: #f472b6; opacity: .7; margin-right: 8px; }
-
-        /* ─── BLE card ─── */
-        .ble-info { font-size: .82em; color: var(--text-muted); line-height: 1.7; margin-bottom: 14px; }
-        .ble-info code { color: var(--pink); background: var(--pink-pale); padding: 1px 6px; border-radius: 4px; font-family: 'Space Mono', monospace; }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 860px) {
-            .page { grid-template-columns: 1fr; }
-            .col-left, .col-right { padding: 16px; }
-            .controls-row, .charts-row { grid-template-columns: 1fr; }
-            .status-wrap { transform: scale(.82); transform-origin: top right; }
-        }
-    </style>
-</head>
 <body>
 
-<!-- Status badges top-right -->
-<div class="status-wrap">
-    <div class="badge" id="status-bt"><i class="fab fa-bluetooth-b"></i> BT Offline</div>
-    <div class="badge" id="status-fb"><i class="fas fa-cloud"></i> DB Offline</div>
+<div class="bg-overlay"></div>
+
+<!-- Hiasan -->
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="deco deco-left">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="deco deco-right">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="vector vector-1">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="vector vector-2">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="star">
+
+<div class="main-ui">
+
+    <!-- TITLE -->
+    <div class="title-wrap">
+        <img 
+        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true"
+        class="title-img">
+    </div>
+
+    <!-- SUHU -->
+    <div class="cute-card suhu-card">
+        <div class="mini-title">🌡️ DHT11 - SUHU</div>
+
+        <div class="suhu-value" id="val-suhu">
+            --°
+        </div>
+
+        <div class="suhu-desc">
+            Suhu udara taman
+        </div>
+
+        <img 
+        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2018.png?raw=true"
+        class="chart chart-suhu">
+    </div>
+
+    <!-- FIREBASE -->
+    <div class="cute-card firebase-card">
+
+        <div class="firebase-title">
+            ☁️ Firebase Cloud Sync
+        </div>
+
+        <label>Api key</label>
+        <input type="password" id="fb-apiKey">
+
+        <label>Database URL</label>
+        <input type="text" id="fb-dbUrl">
+
+        <label>Node path</label>
+        <input type="text" id="fb-path">
+
+        <button class="firebase-btn" id="btn-connect-fb">
+            🔗 Hubungkan Firebase
+        </button>
+
+        <!-- CHART KIRI -->
+        <img 
+        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2014.png?raw=true"
+        class="chart-left">
+    </div>
+
+    <!-- MODE -->
+    <div class="cute-card mode-card">
+
+        <div class="mode-title">Auto</div>
+
+        <div class="toggle-box">
+            <label class="switch">
+                <input type="checkbox" id="modeSwitch">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="mode-bottom">
+            Manual
+        </div>
+
+        <img 
+        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2019%20(1).png?raw=true"
+        class="chart-auto">
+    </div>
+
+    <!-- RELAY -->
+    <div class="cute-card relay-card">
+
+        <img 
+        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2020.png?raw=true"
+        class="relay-light">
+
+        <div class="relay-title">
+            Relay
+        </div>
+
+        <div class="relay-desc">
+            📌 pin P13 · Untuk mengontrol
+            nyala dan matinya kipas
+        </div>
+
+        <div class="relay-status" id="lbl-relay">
+            Off
+        </div>
+    </div>
+
+    <!-- TERMINAL -->
+    <div class="terminal-card">
+
+        <div class="terminal-header">
+            <div class="dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+            </div>
+
+            <div class="terminal-title">
+                System_terminal
+            </div>
+        </div>
+
+        <div id="terminalLog" class="terminal-log"></div>
+
+        <!-- CHART KANAN BAWAH -->
+        <img 
+        src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2021.png?raw=true"
+        class="chart-bottom">
+    </div>
+
 </div>
 
-<div class="page">
 
-    <!-- ══════════ LEFT COLUMN ══════════ -->
-    <div class="col-left">
+<style>
 
-        <!-- Firebase card -->
-        <div class="card" style="animation-delay:.1s">
-            <div class="card-title">
-                <div class="icon-circle"><i class="fas fa-cloud"></i></div>
-                Fire base cloud sync
-            </div>
+/* =========================
+   BACKGROUND
+========================= */
 
-            <label>Api key</label>
-            <input type="password" id="fb-apiKey" placeholder="AIzaSy...">
-            <label>Database URL</label>
-            <input type="text" id="fb-dbUrl" placeholder="https://project-rtdb.firebaseio.com">
-            <label>Node path</label>
-            <input type="text" id="fb-path" value="smarthome/ruangan1">
-            <button class="btn btn-full" id="btn-connect-fb">
-                <i class="fas fa-link"></i> Hubungkan Firebase
-            </button>
-        </div>
+body{
+    margin:0;
+    min-height:100vh;
+    overflow-x:hidden;
+    font-family: 'Nunito', sans-serif;
 
-        <!-- Micro:bit BLE card -->
-        <div class="card" style="animation-delay:.18s">
-            <div class="card-title">
-                <div class="icon-circle" style="background:linear-gradient(135deg,#7b2d8b,#c084d8)"><i class="fas fa-microchip"></i></div>
-                Micro:bit Bluetooth
-            </div>
-            <p class="ble-info">
-                Pastikan Micro:bit menyala &amp; ekstensi <strong>Bluetooth UART</strong> aktif di MakeCode.<br>
-                📥 RX dari Micro:bit: <code>key,value</code><br>
-                📤 TX ke Micro:bit: <code>key,value↵</code>
-            </p>
-            <div style="display:flex;gap:10px;flex-direction:column;">
-                <button class="btn" id="btn-connect-ble"><i class="fab fa-bluetooth"></i> Connect Micro:bit</button>
-                <button class="btn btn-dark" id="btn-disconnect-ble" disabled><i class="fas fa-times"></i> Disconnect</button>
-            </div>
-        </div>
+    background-image:url('https://i.pinimg.com/webp/1200x/b7/6d/5f/b76d5f2ffb21263b588c23618d97ee9a.webp');
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
 
-        <!-- Sensor cards -->
-        <div class="sec-label"><i class="fas fa-satellite-dish"></i> Live Sensor Data</div>
+    position:relative;
+}
 
-        <div class="sensor-big" style="animation-delay:.22s">
-            <div class="sensor-tag">📡 Ultrasonik 1 · P0 / P1</div>
-            <div class="sensor-emoji">💧</div>
-            <div class="sensor-val" id="val-jarak">--<span class="sensor-unit">cm</span></div>
-            <div class="sensor-desc">Pompa Relay ON jika jarak ≥ 30 cm</div>
-            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-jarak" style="width:0%"></div></div>
-            <div class="chart-wrap"><canvas id="chart-jarak"></canvas></div>
-        </div>
+.bg-overlay{
+    position:fixed;
+    inset:0;
+    backdrop-filter:blur(10px);
+    background:rgba(255,255,255,0.15);
+    z-index:0;
+}
 
-        <div class="sensor-big" style="animation-delay:.28s" id="card-ember">
-            <div class="sensor-tag">🌊 Ultrasonik 2 · P3 / P8 · Ember</div>
-            <div class="sensor-emoji" id="ember-emoji">🌊</div>
-            <div class="sensor-val teal" id="val-jarak-manual">--<span class="sensor-unit">cm</span></div>
-            <div class="sensor-desc">Monitoring level air ember · tidak kontrol aktuator</div>
-            <div class="sensor-bar">
-                <div class="sensor-bar-fill" id="bar-jarak-manual" style="width:0%;background:linear-gradient(90deg,var(--teal),#84d8d0)"></div>
-            </div>
-            <div class="chart-wrap"><canvas id="chart-jarak-manual"></canvas></div>
-        </div>
+/* =========================
+   MAIN UI
+========================= */
 
-        <!-- Alert -->
-        <div class="alert-banner" id="alertEmber">
-            <div class="alert-icon">⚠️</div>
-            <div class="alert-body">
-                <h3>🪣 Air Ember Hampir Habis!</h3>
-                <p>Jarak sensor ember &gt; 30 cm — level air terlalu rendah.<br>
-                   Segera lakukan <strong>mixing manual</strong> atau isi ulang ember nutrisi.</p>
-            </div>
-            <div class="alert-badge">⚡ Mixing Manual!</div>
-        </div>
+.main-ui{
+    width:100%;
+    max-width:1450px;
+    margin:auto;
+    padding:20px;
+    position:relative;
+    z-index:2;
 
-    </div><!-- /col-left -->
+    display:grid;
+    grid-template-columns: 1.25fr 0.38fr 0.65fr;
+    grid-template-rows:auto auto auto;
+    gap:20px;
+}
 
+/* =========================
+   TITLE
+========================= */
 
-    <!-- ══════════ RIGHT COLUMN ══════════ -->
-    <div class="col-right">
+.title-wrap{
+    grid-column:1/3;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+}
 
-        <!-- Header row: logo center + DHT card right -->
-        <div class="mlp-header">
-            <!-- spacer left -->
-            <div style="width:220px;flex-shrink:0;display:flex;align-items:flex-start;gap:8px;padding-top:10px;">
-                <span class="star s1">⭐</span>
-                <span class="star s2" style="margin-top:14px;">✦</span>
-                <span class="star s3" style="margin-top:4px;">🌟</span>
-            </div>
+.title-img{
+    width:700px;
+    max-width:100%;
+}
 
-            <!-- Logo -->
-            <div class="mlp-logo-wrap">
-                <div class="mlp-logo">
-                    <div class="rainbow-stripe"></div>
-                    <span class="my-txt">MY</span>
-                    <span class="little-txt">L I T T L E</span>
-                    <span class="pusheen-txt">PUSHEEN</span>
-                    <div class="rainbow-stripe" style="margin-top:4px;margin-bottom:0;"></div>
-                </div>
-            </div>
+/* =========================
+   CARD
+========================= */
 
-            <!-- DHT11 card top-right -->
-            <div class="dht-card" style="width:220px;flex-shrink:0;animation-delay:.08s;">
-                <div class="dht-title">
-                    🌡️ DHT11 – SUHU
-                </div>
-                <div class="dht-val-row">
-                    <div class="dht-bars">
-                        <div class="dht-bar"></div>
-                        <div class="dht-bar"></div>
-                    </div>
-                    <div class="dht-dot"></div>
-                </div>
-                <div class="dht-label">Suhu udara taman</div>
-            </div>
-        </div>
+.cute-card{
+    background:#f7f7f7;
+    border-radius:22px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
 
-        <!-- Mode banner -->
-        <div class="mode-banner" id="modeBanner">
-            <div class="mode-info">
-                <h3>🤖 Mode Sistem</h3>
-                <p>Otomatis: relay dikontrol sensor jarak. Manual: kontrol relay lewat toggle.</p>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <div class="mode-pill auto" id="modePill"><i class="fas fa-robot"></i> OTOMATIS</div>
-                <button class="btn btn-sm btn-dark" id="btnToggleMode">
-                    <i class="fas fa-hand-paper"></i> Ke Mode Manual
-                </button>
-            </div>
-        </div>
+/* =========================
+   SUHU
+========================= */
 
-        <!-- Controls row: Mode toggle card + Relay card -->
-        <div class="controls-row">
+.suhu-card{
+    height:275px;
+    padding:28px 40px;
+}
 
-            <!-- Mode toggle card -->
-            <div class="mode-card">
-                <div class="mode-label-top">Auto</div>
-                <div style="display:flex;align-items:center;gap:14px;">
-                    <span class="mode-star">⭐</span>
-                    <label class="big-toggle" id="big-toggle-wrap">
-                        <input type="checkbox" id="big-mode-sw" checked onchange="window.handleBigToggle(this.checked)">
-                        <div class="big-toggle-slider"></div>
-                    </label>
-                    <div style="display:flex;flex-direction:column;gap:4px;">
-                        <div style="width:18px;height:7px;background:var(--pink);border-radius:3px;opacity:.7;"></div>
-                        <div style="width:18px;height:7px;background:var(--pink);border-radius:3px;opacity:.5;"></div>
-                    </div>
-                </div>
-                <div class="mode-label-bottom">Manual</div>
-            </div>
+.mini-title{
+    font-size:20px;
+    color:#b48acb;
+    font-weight:900;
+}
 
-            <!-- Relay card -->
-            <div class="relay-card off" id="card-relay">
-                <div class="relay-glow"></div>
-                <div class="relay-icon-big" id="icon-relay">⚡</div>
-                <div class="relay-name">Relay</div>
-                <div class="relay-pin">📌 pin P13 . Untuk mengontrol<br>nyala dan matinya kipas</div>
-                <div class="relay-status" id="lbl-relay">Off</div>
-                <div class="toggle-wrap" id="manual-relay" style="display:none;">
-                    <span class="toggle-lbl">Manual:</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="sw-relay" onchange="window.toggleRelay(this.checked)">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-        </div>
+.suhu-value{
+    margin-top:50px;
+    font-size:90px;
+    color:#ff2f2f;
+    font-weight:900;
+    letter-spacing:10px;
+}
 
-        <!-- Charts row -->
-        <div class="sec-label"><i class="fas fa-chart-line"></i> Grafik Riwayat</div>
-        <div class="charts-row">
-            <div class="card" style="animation-delay:.3s;padding:18px;">
-                <div class="card-title" style="font-size:.92em;"><i class="fas fa-ruler"></i> Jarak (cm)</div>
-                <div style="height:110px;"><canvas id="chart-jarak-big"></canvas></div>
-            </div>
-            <div class="card" style="animation-delay:.38s;padding:18px;">
-                <div class="card-title" style="font-size:.92em;color:var(--teal);"><i class="fas fa-ruler-combined"></i> Jarak Manual (cm)</div>
-                <div style="height:110px;"><canvas id="chart-jarak-manual-big"></canvas></div>
-            </div>
-        </div>
+.suhu-desc{
+    margin-top:10px;
+    color:#b7b7b7;
+    font-weight:700;
+    font-size:28px;
+}
 
-        <!-- Terminal -->
-        <div class="terminal" style="flex:1;">
-            <div class="terminal-hdr">
-                <div class="terminal-title">
-                    <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
-                    <span>System_terminal</span>
-                </div>
-                <button class="btn btn-sm" id="btnClearLog" style="background:transparent;border:1.5px solid #f472b6;color:#f472b6;box-shadow:none;padding:5px 12px;font-size:.75em;">
-                    <i class="fas fa-trash"></i> Clear
-                </button>
-            </div>
-            <div id="terminalLog" class="log-panel"></div>
-        </div>
+/* =========================
+   FIREBASE
+========================= */
 
-    </div><!-- /col-right -->
+.firebase-card{
+    grid-column:1/2;
+    height:585px;
+    padding:30px 50px;
+}
 
-</div><!-- /page -->
+.firebase-title{
+    font-size:42px;
+    font-weight:900;
+    color:#d4288d;
+    margin-bottom:35px;
+}
 
-<script type="module">
-import { initializeApp, getApps, deleteApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+.firebase-card label{
+    display:block;
+    margin-top:25px;
+    margin-bottom:10px;
 
-// =====================================================================
-// STATE
-// =====================================================================
-const state = {
-    db: null, path: "", unsub: null, data: {},
-    device: null, txChar: null, rxChar: null,
-    bleConnected: false, bleBuffer: "",
-    modeOtomatis: 1,
-    charts: {},
-    history: {
-        jarak:        { labels: [], data: [] },
-        jarak_manual: { labels: [], data: [] }
+    color:#c11f7d;
+    font-size:30px;
+    font-weight:900;
+}
+
+.firebase-card input{
+    width:100%;
+    height:60px;
+    border-radius:20px;
+    border:5px solid #ff4aa9;
+    background:white;
+
+    font-size:20px;
+    padding:0 20px;
+}
+
+.firebase-btn{
+    margin-top:40px;
+    width:520px;
+    max-width:100%;
+    height:72px;
+
+    border:none;
+    border-radius:40px;
+
+    background:#ff43a5;
+    color:white;
+
+    font-size:28px;
+    font-weight:900;
+    cursor:pointer;
+}
+
+/* =========================
+   MODE
+========================= */
+
+.mode-card{
+    height:585px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.mode-title{
+    font-size:52px;
+    font-weight:900;
+    color:#ff72bb;
+}
+
+.mode-bottom{
+    font-size:42px;
+    font-weight:900;
+    color:#e7d84e;
+    margin-top:20px;
+}
+
+/* =========================
+   SWITCH
+========================= */
+
+.switch{
+    position:relative;
+    display:inline-block;
+    width:100px;
+    height:180px;
+    margin-top:20px;
+}
+
+.switch input{
+    opacity:0;
+}
+
+.slider{
+    position:absolute;
+    inset:0;
+    background:#f1eba2;
+    border-radius:60px;
+}
+
+.slider:before{
+    content:"";
+    position:absolute;
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    background:#f7b9d5;
+    left:14px;
+    top:14px;
+    transition:0.4s;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateY(80px);
+}
+
+/* =========================
+   RELAY
+========================= */
+
+.relay-card{
+    height:585px;
+    padding:30px;
+    text-align:center;
+}
+
+.relay-light{
+    width:120px;
+    margin-top:10px;
+}
+
+.relay-title{
+    margin-top:20px;
+    font-size:56px;
+    font-weight:900;
+    color:#e46d3f;
+}
+
+.relay-desc{
+    margin-top:20px;
+    color:#9f9f9f;
+    font-size:26px;
+    line-height:1.5;
+    font-weight:700;
+}
+
+.relay-status{
+    margin-top:30px;
+    font-size:58px;
+    color:#999;
+    font-weight:900;
+}
+
+/* =========================
+   TERMINAL
+========================= */
+
+.terminal-card{
+    grid-column:2/4;
+
+    background:#6b0f49;
+    border-radius:35px;
+
+    height:380px;
+    overflow:hidden;
+    position:relative;
+}
+
+.terminal-header{
+    height:62px;
+    display:flex;
+    align-items:center;
+    padding:0 25px;
+    gap:20px;
+}
+
+.dots{
+    display:flex;
+    gap:12px;
+}
+
+.dot{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+}
+
+.red{background:#ff5f57;}
+.yellow{background:#febc2e;}
+.green{background:#28c840;}
+
+.terminal-title{
+    color:#ff59c2;
+    font-size:22px;
+}
+
+.terminal-log{
+    width:calc(100% - 50px);
+    height:280px;
+    background:black;
+    margin:auto;
+    border-radius:10px;
+    overflow:auto;
+    padding:20px;
+    color:#7dff8a;
+    font-family:monospace;
+}
+
+/* =========================
+   CHARTS
+========================= */
+
+.chart-left{
+    position:absolute;
+    left:-40px;
+    bottom:10px;
+    width:180px;
+}
+
+.chart-bottom{
+    position:absolute;
+    right:20px;
+    bottom:10px;
+    width:180px;
+}
+
+.chart-suhu{
+    position:absolute;
+    right:30px;
+    top:80px;
+    width:160px;
+}
+
+.chart-auto{
+    position:absolute;
+    bottom:40px;
+    width:110px;
+}
+
+.relay-light{
+    width:100px;
+}
+
+/* =========================
+   HIASAN
+========================= */
+
+.deco{
+    position:fixed;
+    z-index:1;
+    pointer-events:none;
+}
+
+.deco-left{
+    left:-20px;
+    bottom:0;
+    width:230px;
+}
+
+.deco-right{
+    right:-10px;
+    top:160px;
+    width:180px;
+}
+
+.vector{
+    position:fixed;
+    z-index:1;
+}
+
+.vector-1{
+    top:70px;
+    left:210px;
+    width:60px;
+}
+
+.vector-2{
+    top:100px;
+    right:520px;
+    width:80px;
+}
+
+.star{
+    position:fixed;
+    top:40px;
+    right:550px;
+    width:70px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1200px){
+
+    .main-ui{
+        grid-template-columns:1fr;
     }
-};
 
-const MAX_PTS = 30;
-const $ = id => document.getElementById(id);
-
-// =====================================================================
-// LOGGER
-// =====================================================================
-function log(msg, color = "#f9a8d4") {
-    const t = new Date().toLocaleTimeString('id-ID', { hour12: false });
-    $('terminalLog').insertAdjacentHTML('afterbegin',
-        `<div class="log-line"><span class="log-time">[${t}]</span><span style="color:${color}"> ${msg}</span></div>`);
-}
-
-// =====================================================================
-// STATUS
-// =====================================================================
-function updateBTStatus() {
-    $('btn-connect-ble').disabled    = state.bleConnected;
-    $('btn-disconnect-ble').disabled = !state.bleConnected;
-    const b = $('status-bt');
-    b.innerHTML = state.bleConnected
-        ? '<i class="fab fa-bluetooth-b"></i> BT Connected'
-        : '<i class="fab fa-bluetooth-b"></i> BT Offline';
-    b.className = 'badge' + (state.bleConnected ? ' online' : '');
-}
-function updateDBStatus(ok) {
-    const b = $('status-fb');
-    b.innerHTML = ok
-        ? '<i class="fas fa-cloud"></i> DB Synced'
-        : '<i class="fas fa-cloud"></i> DB Offline';
-    b.className = 'badge' + (ok ? ' online' : '');
-}
-
-// =====================================================================
-// MODE
-// =====================================================================
-function applyMode(isAuto) {
-    state.modeOtomatis = isAuto ? 1 : 0;
-    const pill   = $('modePill');
-    const btnTgl = $('btnToggleMode');
-    const bigSw  = $('big-mode-sw');
-
-    if (isAuto) {
-        pill.className = 'mode-pill auto';
-        pill.innerHTML = '<i class="fas fa-robot"></i> OTOMATIS';
-        btnTgl.innerHTML = '<i class="fas fa-hand-paper"></i> Ke Mode Manual';
-        $('manual-relay').style.display = 'none';
-        if (bigSw && document.activeElement !== bigSw) bigSw.checked = true;
-    } else {
-        pill.className = 'mode-pill manual';
-        pill.innerHTML = '<i class="fas fa-hand-paper"></i> MANUAL';
-        btnTgl.innerHTML = '<i class="fas fa-robot"></i> Ke Mode Otomatis';
-        $('manual-relay').style.display = 'flex';
-        if (bigSw && document.activeElement !== bigSw) bigSw.checked = false;
+    .title-wrap,
+    .firebase-card,
+    .terminal-card{
+        grid-column:auto;
     }
 
-    sendBLE("mode", isAuto ? 1 : 0);
-    if (state.db) update(ref(state.db, `${state.path}/mode`), { value: isAuto ? 1 : 0 });
-    log(`Mode → ${isAuto ? 'OTOMATIS' : 'MANUAL'}`, isAuto ? '#f9a8d4' : '#fde047');
-}
-
-$('btnToggleMode').onclick = () => applyMode(state.modeOtomatis === 0);
-
-// big toggle on mode card also controls mode
-window.handleBigToggle = (checked) => applyMode(checked);
-
-// =====================================================================
-// RELAY UI
-// =====================================================================
-function updateRelayUI(isOn) {
-    const card = $('card-relay');
-    const sw   = $('sw-relay');
-    card.className = `relay-card ${isOn ? 'on' : 'off'}`;
-    $('lbl-relay').textContent = isOn ? 'ON ✓' : 'Off';
-    if (sw && document.activeElement !== sw) sw.checked = isOn;
-}
-
-// =====================================================================
-// SENSOR UI
-// =====================================================================
-function updateSensorUI(key, val) {
-    const elId = key === 'jarak_manual' ? 'val-jarak-manual' : `val-${key}`;
-    const barId = key === 'jarak_manual' ? 'bar-jarak-manual' : `bar-${key}`;
-    const el = $(elId);
-    if (!el) return;
-    let numSpan = el.querySelector('.num');
-    if (!numSpan) {
-        el.innerHTML = `<span class="num">${val}</span><span class="sensor-unit">cm</span>`;
-    } else {
-        numSpan.textContent = val;
+    .firebase-card,
+    .relay-card,
+    .mode-card,
+    .suhu-card{
+        height:auto;
     }
-    const bar = $(barId);
-    if (bar) bar.style.width = Math.min(100, (val / 150) * 100) + '%';
-    if (key === 'jarak_manual') {
-        const alertEl = $('alertEmber');
-        const emoji   = $('ember-emoji');
-        const card    = $('card-ember');
-        if (val > 30) {
-            alertEl.classList.add('show');
-            if (emoji) emoji.textContent = '🚨';
-            if (card)  card.style.borderColor = 'rgba(245,158,11,.6)';
-        } else {
-            alertEl.classList.remove('show');
-            if (emoji) emoji.textContent = '🌊';
-            if (card)  card.style.borderColor = '';
-        }
-    }
+
 }
 
-// =====================================================================
-// BLUETOOTH
-// =====================================================================
-const SVC = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
-const TX  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
-const RX  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
-
-async function connectBLE() {
-    try {
-        if (!navigator.bluetooth) throw new Error("Browser tidak mendukung Web Bluetooth.");
-        log("Scanning Micro:bit...", "#fde047");
-        state.device = await navigator.bluetooth.requestDevice({
-            filters: [{ namePrefix: "BBC micro:bit" }],
-            optionalServices: [SVC]
-        });
-        state.device.addEventListener("gattserverdisconnected", () => {
-            state.bleConnected = false; updateBTStatus();
-            log("BLE Terputus!", "#f87171");
-        });
-        const server  = await state.device.gatt.connect();
-        const service = await server.getPrimaryService(SVC);
-        state.txChar  = await service.getCharacteristic(TX);
-        state.rxChar  = await service.getCharacteristic(RX);
-        await state.txChar.startNotifications();
-        state.txChar.addEventListener("characteristicvaluechanged", onBLEData);
-        state.bleConnected = true; updateBTStatus();
-        log(`✓ Terhubung: ${state.device.name}`, "#f9a8d4");
-    } catch (e) { log(`BLE Error: ${e.message}`, "#f87171"); }
-}
-
-function onBLEData(event) {
-    let arr = [];
-    for (let i = 0; i < event.target.value.byteLength; i++)
-        arr.push(event.target.value.getUint8(i));
-    state.bleBuffer += String.fromCharCode.apply(null, arr);
-    const lines = state.bleBuffer.split('\n');
-    state.bleBuffer = lines.pop() || "";
-    lines.forEach(line => { const t = line.trim(); if (t) processBLELine(t); });
-}
-
-function processBLELine(txt) {
-    log(`RX ← ${txt}`, "#a3e635");
-    if (!txt.includes(',')) return;
-    const idx = txt.indexOf(',');
-    const key = txt.substring(0, idx).trim();
-    const val = parseFloat(txt.substring(idx + 1).trim());
-    if (isNaN(val)) return;
-    if (key === "mode")         { applyMode(val === 1); return; }
-    if (key === "Relay")        { updateRelayUI(val === 1); if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val, tipe: 'switch' }); return; }
-    if (key === "jarak")        { updateSensorUI("jarak", val); pushHistory("jarak", val); if (state.db) update(ref(state.db, `${state.path}/jarak`), { value: val, tipe: 'sensor', satuan: 'cm' }); return; }
-    if (key === "jarak_manual") { updateSensorUI("jarak_manual", val); pushHistory("jarak_manual", val); if (state.db) update(ref(state.db, `${state.path}/jarak_manual`), { value: val, tipe: 'sensor', satuan: 'cm' }); return; }
-}
-
-async function sendBLE(key, val) {
-    if (!state.rxChar) return;
-    const payload = `${key},${val}\n`;
-    try {
-        await state.rxChar.writeValue(new TextEncoder().encode(payload));
-        log(`TX → ${payload.trim()}`, "#fde047");
-    } catch (e) { log(`TX Error: ${e.message}`, "#f87171"); }
-}
-
-// =====================================================================
-// TOGGLE RELAY
-// =====================================================================
-window.toggleRelay = (isChecked) => {
-    if (state.modeOtomatis === 1) return;
-    const val = isChecked ? 1 : 0;
-    updateRelayUI(isChecked);
-    sendBLE("Relay", val);
-    if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
-    log(`Relay → ${isChecked ? 'ON' : 'OFF'}`, "#fbbf24");
-};
-
-// =====================================================================
-// FIREBASE
-// =====================================================================
-async function connectFirebase() {
-    const apiKey = $('fb-apiKey').value.trim();
-    const dbUrl  = $('fb-dbUrl').value.trim();
-    const path   = $('fb-path').value.trim() || "smarthome/ruangan1";
-    if (!apiKey || !dbUrl) { alert("Isi API Key dan Database URL!"); return; }
-    try {
-        const apps = getApps();
-        if (apps.length > 0) await deleteApp(apps[0]);
-        if (state.unsub) state.unsub();
-        const app = initializeApp({ apiKey, databaseURL: dbUrl, projectId: dbUrl.replace("https://","").split(".")[0] });
-        state.db   = getDatabase(app);
-        state.path = path;
-        log(`Menghubungkan → /${path}`, "#fde047");
-        const initData = {
-            jarak:        { tipe: 'sensor', value: 0, satuan: 'cm' },
-            jarak_manual: { tipe: 'sensor', value: 0, satuan: 'cm' },
-            relay:        { tipe: 'switch', value: 0 },
-            mode:         { tipe: 'switch', value: 1 }
-        };
-        state.unsub = onValue(ref(state.db, path), (snap) => {
-            const d = snap.val();
-            if (!d) { set(ref(state.db, path), initData); return; }
-            state.data = d;
-            updateDBStatus(true);
-            if (d.jarak)        updateSensorUI("jarak",        d.jarak.value ?? 0);
-            if (d.jarak_manual) updateSensorUI("jarak_manual", d.jarak_manual.value ?? 0);
-            if (d.relay)        updateRelayUI((d.relay.value ?? 0) === 1);
-            if (d.mode)         applyMode((d.mode.value ?? 1) === 1);
-        }, err => { log(`DB Error: ${err.message}`, "#f87171"); updateDBStatus(false); });
-        log(`✓ Firebase OK: /${path}`, "#f9a8d4");
-        localStorage.setItem('smarthome_cfg', JSON.stringify({ apiKey, dbUrl, path }));
-    } catch (e) { log(`DB Error: ${e.message}`, "#f87171"); updateDBStatus(false); }
-}
-
-// =====================================================================
-// CHARTS
-// =====================================================================
-const CHART_CFG = {
-    jarak:        { color: '#d72f8a', label: 'Jarak' },
-    jarak_manual: { color: '#0d9488', label: 'Jarak Manual' }
-};
-
-function makeChart(canvasId, key, height = 90) {
-    const canvas = $(canvasId);
-    if (!canvas) return null;
-    if (state.charts[canvasId]) state.charts[canvasId].destroy();
-    const ctx   = canvas.getContext('2d');
-    const color = CHART_CFG[key].color;
-    const grad  = ctx.createLinearGradient(0, 0, 0, height);
-    grad.addColorStop(0, color + '55');
-    grad.addColorStop(1, color + '00');
-    return new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels:   state.history[key].labels,
-            datasets: [{ data: state.history[key].data, borderColor: color, backgroundColor: grad, borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4 }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            scales: { y: { display: false }, x: { display: false } },
-            animation: { duration: 200 }
-        }
-    });
-}
-
-function initCharts() {
-    state.charts['chart-jarak']             = makeChart('chart-jarak',             'jarak',        60);
-    state.charts['chart-jarak-manual']      = makeChart('chart-jarak-manual',      'jarak_manual', 60);
-    state.charts['chart-jarak-big']         = makeChart('chart-jarak-big',         'jarak',        110);
-    state.charts['chart-jarak-manual-big']  = makeChart('chart-jarak-manual-big',  'jarak_manual', 110);
-}
-
-function pushHistory(key, val) {
-    const h = state.history[key];
-    if (!h) return;
-    h.labels.push(new Date().toLocaleTimeString('id-ID', { hour12: false }));
-    h.data.push(parseFloat(val) || 0);
-    if (h.labels.length > MAX_PTS) { h.labels.shift(); h.data.shift(); }
-    [`chart-${key === 'jarak_manual' ? 'jarak-manual' : key}`,
-     `chart-${key === 'jarak_manual' ? 'jarak-manual' : key}-big`].forEach(id => {
-        const ch = state.charts[id];
-        if (!ch) return;
-        ch.data.labels           = h.labels;
-        ch.data.datasets[0].data = h.data;
-        ch.update('none');
-    });
-}
-
-// =====================================================================
-// INIT
-// =====================================================================
-$('btn-connect-ble').onclick    = connectBLE;
-$('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
-$('btn-connect-fb').onclick     = connectFirebase;
-$('btnClearLog').onclick        = () => $('terminalLog').innerHTML = '';
-
-window.onload = () => {
-    initCharts();
-    applyMode(true);
-    const saved = JSON.parse(localStorage.getItem('smarthome_cfg') || '{}');
-    if (saved.apiKey) {
-        $('fb-apiKey').value = saved.apiKey;
-        $('fb-dbUrl').value  = saved.dbUrl;
-        $('fb-path').value   = saved.path || "smarthome/ruangan1";
-    }
-    log("✓ My Little Pusheen Smart Garden siap — hubungkan Firebase & Micro:bit 🌸", "#f9a8d4");
-};
-</script>
-</body>
-</html>
+</style>
