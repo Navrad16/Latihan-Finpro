@@ -36,7 +36,7 @@
             overflow-x: hidden;
         }
 
-        /* ===== CONTAINER UTAMA LAYOUT ===== */
+        /* ===== CONTAINER UTAMA LAYOUT MACAM FIGMA ===== */
         .ui-container {
             width: 1000px;
             height: 700px;
@@ -44,7 +44,7 @@
             z-index: 1;
         }
 
-        /* ===== DEKORASI GAMBAR & JUDUL (Sesuai Mockup) ===== */
+        /* ===== DEKORASI ASSET GAMBAR JUDUL & HIASAN ===== */
         .main-title {
             position: absolute;
             top: 25px;
@@ -93,7 +93,7 @@
             z-index: 4;
         }
 
-        /* ===== KONEKSI STATUS BADGES ===== */
+        /* ===== BADGES STATUS JARINGAN ===== */
         .status-container {
             position: absolute;
             top: -15px;
@@ -120,7 +120,7 @@
             border-color: var(--pink-main); 
         }
 
-        /* ===== BASE CARD STYLING ===== */
+        /* ===== BASE STYLING KOTAK KARTU ===== */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -138,9 +138,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            text-transform: capitalize;
         }
 
-        /* ===== BOX KIRI: FIREBASE CLOUD SYNC ===== */
+        /* ===== KOTAK KIRI: FIREBASE CLOUD SYNC ===== */
         .firebase-card {
             width: 510px;
             height: 400px;
@@ -176,41 +177,38 @@
             background: var(--pink-main);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 22px;
             border-radius: 20px;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             font-family: 'Fredoka', sans-serif;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-top: 5px;
             transition: transform 0.1s;
         }
         .btn-connect:active { transform: scale(0.98); }
 
-        /* Microbit BLE Controller Buttons Box Inside Firebase Area */
+        /* Wadah Kontrol Micro:bit Bluetooth BLE */
         .ble-control-box {
             display: flex;
-            gap: 10px;
-            margin-top: -5px;
+            gap: 8px;
         }
         .btn-ble {
             background: #a3b8cc;
             color: white;
             border: none;
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-size: 11px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             font-family: 'Fredoka', sans-serif;
-            flex: 1;
         }
         .btn-ble:disabled { background: #e2e8f0; cursor: not-allowed; color: #94a3b8; }
 
-        /* ===== BOX KANAN ATAS: DHT11 SENSOR ===== */
+        /* ===== KOTAK KANAN ATAS: DHT11 SENSOR SUHU ===== */
         .dht-card {
             width: 270px;
             height: 200px;
@@ -252,7 +250,7 @@
             font-weight: 600;
         }
 
-        /* ===== BOX TENGAH: AUTO MANUAL TOGGLE ===== */
+        /* ===== KOTAK TENGAH: VERTICAL MODE SWITCH TOGGLE ===== */
         .toggle-card {
             width: 150px;
             height: 180px;
@@ -290,11 +288,11 @@
             transition: all 0.25s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
-        /* Style sewaktu manual (pindah ke bawah) */
+        /* Kondisi visual saat mode manual aktif (pindah ke bawah) */
         .switch-btn-vertical.manual-active { background: #ffccd5; }
         .switch-btn-vertical.manual-active .ball { top: 44px; }
 
-        /* ===== BOX KANAN TENGAH: RELAY ===== */
+        /* ===== KOTAK KANAN TENGAH: RELAY CONTROLLER ===== */
         .relay-card {
             width: 270px;
             height: 180px;
@@ -329,7 +327,7 @@
         }
         .relay-status-label.on-state { color: var(--pink-main); }
 
-        /* Kontrol Relay Horizontal Switch (muncul pas manual) */
+        /* Saklar Horizontal Pendukung Mode Manual */
         .manual-relay-switch-container {
             display: none;
             justify-content: center;
@@ -365,7 +363,7 @@
         input:checked + .horiz-slider:before { transform: translateX(24px); }
 
 
-        /* ===== BOX KANAN BAWAH: TERMINAL UTAMA ===== */
+        /* ===== KOTAK KANAN BAWAH: SYSTEM TERMINAL LOGS ===== */
         .terminal-box {
             width: 460px;
             height: 240px;
@@ -425,12 +423,12 @@
         }
         .btn-clear-terminal:hover { background: var(--pink-main); color: white; border-color: var(--pink-main); }
 
-        /* AREA GRAFIK DISEMBUNYIKAN AGAR TIDAK MERUSAK UI */
+        /* AREA GRAFIK DISEMBUNYIKAN AGAR TIDAK MERUSAK KELURUSAN UI MOCKUP */
         .hidden-graph-elements { display: none !important; }
 
-        /* Responsive handle */
+        /* Responsivitas Skala Layar */
         @media (max-width: 1024px) {
-            body { overflow-auto: auto; padding: 20px; }
+            body { overflow: auto; padding: 20px; }
             .ui-container { transform: scale(0.85); transform-origin: center top; margin-top: -30px; }
         }
     </style>
@@ -444,12 +442,12 @@
 
 <div class="ui-container">
 
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-title" alt="Title Graphic">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="decor-twilight" alt="Twilight Pusheen">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="decor-star" alt="Star Asset">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="decor-orange" alt="Orange Pusheen">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="decor-unicorn" alt="Unicorn Pusheen">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="decor-fluttershy" alt="Fluttershy Pusheen">
+    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-title" alt="Title">
+    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="decor-twilight" alt="Twilight">
+    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="decor-star" alt="Star">
+    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="decor-orange" alt="Orange">
+    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="decor-unicorn" alt="Unicorn">
+    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="decor-fluttershy" alt="Fluttershy">
 
     <div class="card firebase-card">
         <div class="card-title">
@@ -479,7 +477,7 @@
 
     <div class="card dht-card">
         <div class="dht-header">
-            <img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f321.png" alt="temp">
+            <img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f321.png" alt="thermometer">
             <span>DHT11 - SUHU</span>
         </div>
         <div class="dht-value" id="val-suhu">
@@ -543,7 +541,7 @@ import { initializeApp, getApps, deleteApp }     from 'https://www.gstatic.com/f
 import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 // =====================================================================
-// CORE LOGIC STORAGE
+// CORE ENGINE LOGIC STORAGE
 // =====================================================================
 const state = {
     db: null, path: "", unsub: null, data: {},
@@ -570,7 +568,7 @@ function log(msg, color = "#ffbcca") {
 }
 
 // =====================================================================
-// HARDWARE CONNECTION STATUS
+// HARDWARE CONNECTION STATUS BADGES
 // =====================================================================
 function updateBTStatus() {
     $('btn-connect-ble').disabled    = state.bleConnected;
@@ -590,7 +588,7 @@ function updateDBStatus(ok) {
 }
 
 // =====================================================================
-// OPERATION MODE SWITCHER (Auto / Manual Control Logic)
+// SYSTEM OPERATION MODE SWITCHER (Auto / Manual Toggle Logic)
 // =====================================================================
 function applyMode(isAuto) {
     state.modeOtomatis = isAuto ? 1 : 0;
@@ -632,7 +630,7 @@ function updateRelayUI(isOn) {
 }
 
 // =====================================================================
-// DHT11 DATA RE-ROUTE VISUALIZATION MAP
+// SENSOR VALUE DATA MAP VISUALIZATION
 // =====================================================================
 function updateSensorUI(key, val) {
     if (key === 'jarak') {
@@ -644,7 +642,7 @@ function updateSensorUI(key, val) {
 }
 
 // =====================================================================
-// MICROBIT UART BLUETOOTH DRIVER ENGINE
+// MICROBIT UART BLUETOOTH BLE DRIVER ENGINE
 // =====================================================================
 const SVC = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const TX  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
@@ -734,7 +732,7 @@ window.toggleRelay = (isChecked) => {
 };
 
 // =====================================================================
-// GOOGLE FIREBASE CLOUD REALTIME CONNECTION DATA MAP
+// GOOGLE FIREBASE REALTIME CONNECTION MAP
 // =====================================================================
 async function connectFirebase() {
     const apiKey = $('fb-apiKey').value.trim();
@@ -780,7 +778,7 @@ async function connectFirebase() {
 }
 
 // =====================================================================
-// CHART REPLAY DRIVER ENGINE (Silently update data array in background)
+// CHART REPLAY ENGINE BACKGROUND LOOP
 // =====================================================================
 const CHART_CFG = {
     jarak:        { color: '#ff65a3', label: 'Jarak' },
@@ -827,7 +825,7 @@ function pushHistory(key, val) {
 }
 
 // =====================================================================
-// SYSTEM STARTER ONLOAD
+// INITIALIZATION ONLOAD
 // =====================================================================
 $('btn-connect-ble').onclick    = connectBLE;
 $('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
