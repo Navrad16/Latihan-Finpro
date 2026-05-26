@@ -15,7 +15,7 @@
             --yellow-accent: #fff5a1;
             --text-dark: #7a465d;
             --text-muted: #a3758a;
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-bg: rgba(255, 255, 255, 0.93);
             --radius: 24px;
             --radius-sm: 16px;
         }
@@ -30,12 +30,25 @@
             color: var(--text-dark);
             padding: 20px;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== BACKGROUND FLOATING ORNAMENTS ===== */
+        .decor-star {
+            position: absolute; top: 120px; right: 8%; width: 45px; pointer-events: none; opacity: 0.85; z-index: 0;
+        }
+        .decor-vector3 {
+            position: absolute; bottom: 80px; left: 2%; width: 130px; pointer-events: none; opacity: 0.6; z-index: 0;
+        }
+        .decor-vector6 {
+            position: absolute; top: 250px; left: 1%; width: 110px; pointer-events: none; opacity: 0.6; z-index: 0;
         }
 
         .wrapper {
             max-width: 1200px;
             margin: 0 auto;
             position: relative;
+            z-index: 1;
         }
 
         /* ===== HEADER AREA ===== */
@@ -43,36 +56,36 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             position: relative;
-            padding-left: 20px;
+            padding-left: 10px;
         }
         .pusheen-twilight {
-            width: 200px;
+            width: 180px;
             height: auto;
-            margin-right: -10px;
+            margin-right: -15px;
             z-index: 2;
         }
         .main-title-img {
-            height: 130px;
+            height: 95px; /* Dibuat agak kecil tapi tetap kelihatan jelas */
             width: auto;
             object-fit: contain;
         }
 
-        /* ===== MAIN LAYOUT GRID MATCHING IMAGE ===== */
+        /* ===== MAIN GRID LAYOUT MATCHING MOCKUP IMAGE ===== */
         .main-grid {
             display: grid;
-            grid-template-columns: 1.3fr 0.5fr 1fr;
+            grid-template-columns: 1.25fr 0.6fr 1fr;
             grid-template-rows: auto auto auto;
             gap: 20px;
         }
 
-        /* Assigning positions based on image layout */
+        /* Assigning positions based exactly on image layout */
         .cell-firebase { grid-column: 1; grid-row: 1 / 3; }
         .cell-mode { grid-column: 2; grid-row: 1; }
         .cell-dht { grid-column: 3; grid-row: 1; }
         .cell-relay { grid-column: 3; grid-row: 2; }
-        .cell-microbit { grid-column: 2; grid-row: 2; } /* Menampung Microbit BLE */
+        .cell-microbit { grid-column: 2; grid-row: 2; } 
         .cell-terminal { grid-column: 2 / 4; grid-row: 3; }
         .cell-charts-area { grid-column: 1; grid-row: 3; }
 
@@ -81,7 +94,7 @@
             background: var(--card-bg);
             border-radius: var(--radius);
             padding: 24px;
-            box-shadow: 0 8px 24px rgba(255, 101, 163, 0.15);
+            box-shadow: 0 8px 24px rgba(255, 101, 163, 0.12);
             border: 4px solid white;
             position: relative;
             display: flex;
@@ -89,13 +102,14 @@
         }
 
         .card-title {
-            font-size: 1.5em;
+            font-size: 1.25em;
             font-weight: 900;
             color: var(--pink-primary);
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
+            text-transform: capitalize;
         }
 
         /* ===== FIREBASE CARD STYLING ===== */
@@ -104,22 +118,27 @@
         }
         .card-firebase label {
             font-weight: 800;
-            font-size: 1.1em;
+            font-size: 0.95em;
             color: var(--pink-primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: block;
+            text-transform: capitalize;
         }
         .card-firebase input {
             width: 100%;
-            padding: 14px 20px;
+            padding: 13px 18px;
             border: 3px solid var(--pink-border);
             border-radius: var(--radius-sm);
-            font-size: 1em;
+            font-size: 0.95em;
             color: var(--text-dark);
             background: white;
             outline: none;
             font-weight: 700;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            font-family: 'Nunito', sans-serif;
+        }
+        .card-firebase input[type=password] {
+            font-family: 'Space Mono', monospace;
         }
         .btn-firebase {
             background: var(--pink-primary);
@@ -128,96 +147,97 @@
             padding: 14px;
             border-radius: 40px;
             font-weight: 900;
-            font-size: 1.2em;
+            font-size: 1.1em;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 4px 12px rgba(255, 101, 163, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 101, 163, 0.3);
             margin-top: auto;
+            transition: all 0.2s;
         }
+        .btn-firebase:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(255, 101, 163, 0.4); }
 
         /* ===== AUTO / MANUAL SWITCH CARD ===== */
         .card-mode {
             align-items: center;
             justify-content: space-between;
-            padding: 20px;
+            padding: 22px;
         }
         .mode-text {
             font-weight: 900;
-            font-size: 1.3em;
-            color: #ffd24c;
-            text-shadow: 1px 1px 0px #cda21b;
+            font-size: 1.25em;
+            color: #babcbe;
+            transition: color 0.3s;
         }
-        .mode-text.auto-lbl { color: var(--pink-primary); text-shadow: none; }
+        .mode-text.active-auto { color: var(--pink-primary); }
+        .mode-text.active-manual { color: #ffd24c; text-shadow: 1px 1px 0px #cda21b; }
         
-        /* Vertical Toggle Design like image */
+        /* Vertical Toggle Switch Design */
         .vertical-switch {
-            width: 45px;
-            height: 90px;
+            width: 48px;
+            height: 95px;
             background: #fff5a1;
             border-radius: 30px;
             position: relative;
             cursor: pointer;
             border: 3px solid #ffe869;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
         .vertical-handle {
-            width: 35px;
-            height: 35px;
+            width: 36px;
+            height: 36px;
             background: #ff9ebe;
             border-radius: 50%;
             position: absolute;
-            left: 2px;
-            transition: top 0.3s;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            left: 3px;
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            border: 2px solid white;
         }
-        .vertical-switch.auto .vertical-handle { top: 4px; }
-        .vertical-switch.manual .vertical-handle { top: 45px; }
+        .vertical-switch.auto .vertical-handle { top: 4px; background: var(--pink-primary); }
+        .vertical-switch.manual .vertical-handle { top: 49px; background: #ffd24c; }
 
-        /* Decorative Fluttering Butterfly wings on Switch */
-        .card-mode::before {
-            content: '⭐'; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em;
-        }
-        .card-mode::after {
-            content: '🦋'; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2em;
-        }
-
-        /* ===== SENSOR & RELAY TOP RIGHT ===== */
+        /* ===== SENSOR & RELAY CARDS ===== */
         .card-sensor {
             background: white;
+            border: 4px solid white;
         }
         .sensor-header {
             font-weight: 800;
             font-size: 0.9em;
-            color: var(--pink-border);
+            color: var(--text-muted);
             text-transform: uppercase;
             display: flex;
             align-items: center;
             gap: 6px;
         }
         .sensor-main-val {
-            font-size: 4em;
+            font-size: 3.8em;
             font-weight: 900;
             color: var(--pink-primary);
             text-align: center;
-            margin: 10px 0;
+            margin: 12px 0;
             font-family: 'Space Mono', monospace;
         }
+        .sensor-unit { font-size: 0.45em; font-weight: 700; color: var(--text-muted); margin-left: 4px; }
         .sensor-subtext {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: var(--text-muted);
             text-align: center;
             font-weight: 700;
         }
 
-        /* Pusheen Overlay Decorator */
-        .pusheen-dekor {
-            position: absolute;
-            top: -45px;
-            right: -25px;
-            width: 85px;
-            z-index: 10;
+        /* Decorative Character Ornaments attached to frames */
+        .pusheen-top-right-decor {
+            position: absolute; top: -45px; right: -25px; width: 85px; z-index: 10;
+        }
+        .pusheen-bottom-left-decor {
+            position: absolute; bottom: -15px; left: -25px; width: 110px; z-index: 10;
+        }
+        .pusheen-bottom-center-decor {
+            position: absolute; bottom: -20px; left: 40%; width: 100px; z-index: 10;
         }
 
         /* ===== RELAY CARD ===== */
@@ -227,115 +247,85 @@
             text-align: center;
         }
         .relay-bolt {
-            font-size: 3em;
-            color: #ffd24c;
-            margin-bottom: 5px;
+            font-size: 2.8em; color: #ffd24c; margin-bottom: 4px; transition: transform 0.3s;
         }
+        .card-relay-box.on .relay-bolt { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(255,210,76,0.6)); }
         .relay-name-title {
-            font-weight: 900;
-            font-size: 1.4em;
-            color: var(--pink-primary);
+            font-weight: 900; font-size: 1.3em; color: var(--pink-primary);
         }
         .relay-pin-info {
-            font-size: 0.85em;
-            color: var(--text-muted);
-            margin: 8px 0;
-            font-weight: 600;
+            font-size: 0.8em; color: var(--text-muted); margin: 6px 0; font-weight: 600; line-height: 1.3;
         }
         .relay-status-text {
-            font-size: 2em;
-            font-weight: 900;
-            color: #babcbe;
-            text-transform: uppercase;
+            font-size: 1.8em; font-weight: 900; color: #babcbe; text-transform: uppercase; font-family: 'Space Mono', monospace;
         }
         .card-relay-box.on .relay-status-text {
             color: var(--pink-primary);
         }
 
-        /* Manual Slider inside Relay */
-        .relay-toggle-container {
-            margin-top: 10px;
-        }
+        /* Manual Switch inside Relay */
+        .relay-toggle-container { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
         .toggle-switch-horiz {
-            position: relative; display: inline-block; width: 60px; height: 34px;
+            position: relative; display: inline-block; width: 55px; height: 28px;
         }
         .toggle-switch-horiz input { opacity: 0; width: 0; height: 0; }
         .slider-horiz {
-            position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px;
+            position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: .3s; border-radius: 28px;
         }
         .slider-horiz:before {
-            position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+            position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%;
         }
         input:checked + .slider-horiz { background-color: var(--pink-primary); }
-        input:checked + .slider-horiz:before { transform: translateX(26px); }
+        input:checked + .slider-horiz:before { transform: translateX(27px); }
 
 
-        /* ===== MICROBIT AUXILIARY CARD ===== */
+        /* ===== MICROBIT CONTROLLER CARD ===== */
         .card-microbit {
-            padding: 15px;
+            padding: 16px;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
         }
         .btn-ble {
-            background: #7ca6df; color: white; border: none; padding: 10px; border-radius: 20px; font-weight: 800; cursor: pointer; font-size: 0.85em;
+            background: #7ca6df; color: white; border: none; padding: 11px; border-radius: 25px; font-weight: 800; cursor: pointer; font-size: 0.85em; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .btn-ble-dark {
-            background: #506b94;
-        }
+        .btn-ble:hover:not(:disabled) { background: #5d8ecb; transform: translateY(-1px); }
+        .btn-ble:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .btn-ble-dark { background: #506b94; }
+        .btn-ble-dark:hover:not(:disabled) { background: #3d5475; }
 
         /* ===== SYSTEM TERMINAL WINDOW ===== */
         .card-terminal-window {
             background: #471126;
-            border: 6px solid #6b223f;
+            border: 5px solid #6b223f;
             border-radius: var(--radius);
             padding: 20px;
         }
         .terminal-header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
         }
-        .window-dots {
-            display: flex; gap: 8px;
-        }
-        .window-dot { width: 14px; height: 14px; border-radius: 50%; }
+        .window-dots { display: flex; gap: 7px; }
+        .window-dot { width: 12px; height: 12px; border-radius: 50%; }
         .wd-r { background: #ff5f56; }
         .wd-y { background: #ffbd2e; }
         .wd-g { background: #27c93f; }
         .terminal-title-text {
-            color: #ff9ebe;
-            font-family: 'Space Mono', monospace;
-            font-weight: 700;
-            font-size: 0.9em;
+            color: #ff9ebe; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.85em;
         }
         .terminal-log-box {
-            height: 150px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            padding: 12px;
-            overflow-y: auto;
-            font-family: 'Space Mono', monospace;
-            font-size: 13px;
-            color: #ffb7d5;
+            height: 140px; background: rgba(0,0,0,0.25); border-radius: 12px; padding: 12px; overflow-y: auto; font-family: 'Space Mono', monospace; font-size: 12px; color: #ffb7d5;
         }
-        .log-row { margin-bottom: 4px; }
-        .log-timestamp { color: #ffd24c; margin-right: 6px; }
+        .log-line { margin-bottom: 4px; line-height: 1.4; }
+        .log-time { color: #ffd24c; margin-right: 6px; opacity: 0.8; }
 
-        /* ===== CHARTS & HISTORY AREA ===== */
+        /* ===== CHARTS AREA ===== */
         .charts-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            display: flex; flex-direction: column; gap: 16px;
         }
         .mini-chart-card {
-            background: white;
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            border: 2px solid var(--pink-border);
+            background: white; border-radius: var(--radius-sm); padding: 14px; border: 2px solid var(--pink-border);
         }
         .mini-chart-title {
-            font-size: 0.85em; font-weight: 800; color: var(--text-dark); margin-bottom: 6px;
+            font-size: 0.85em; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
         }
 
         /* ===== STATUS BADGES OVERLAY ===== */
@@ -343,30 +333,28 @@
             position: fixed; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 6px; z-index: 2000;
         }
         .status-pill {
-            background: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1.5px solid #ffebf3; color: var(--text-muted);
         }
         .status-pill.online { background: #e3ffd5; color: #438a22; border: 1.5px solid #a2e881; }
 
-        /* Bottom Pusheen Decorative Flutter */
-        .pusheen-bottom-left {
-            position: absolute; bottom: -15px; left: -25px; width: 110px; z-index: 15;
-        }
-        .pusheen-bottom-center {
-            position: absolute; bottom: -20px; left: 38%; width: 110px; z-index: 15;
-        }
-
-        /* Hidden or legacy alert integration wrapper */
+        /* ===== ALERT EMBE BANNER ===== */
         .alert-banner { display: none; }
-        .alert-banner.show { display: block; background: #fff1f1; border: 2px dashed red; padding: 10px; border-radius: 10px; font-size: 0.8em; margin-top: 5px; }
+        .alert-banner.show {
+            display: flex; align-items: center; gap: 12px; background: #fff5a1; border: 3px dashed #ffd24c; padding: 12px 18px; border-radius: var(--radius-sm); font-size: 0.85em; margin-bottom: 15px; font-weight: 700; color: #7a465d;
+        }
 
         @media (max-width: 900px) {
             .main-grid { grid-template-columns: 1fr; }
             .cell-firebase, .cell-mode, .cell-dht, .cell-relay, .cell-microbit, .cell-terminal, .cell-charts-area { grid-column: 1 !important; grid-row: auto !important; }
-            .header-container { flex-direction: column; text-align: center; }
+            .header-container { flex-direction: column; text-align: center; gap: 10px; }
         }
     </style>
 </head>
 <body>
+
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="decor-star" alt="Star">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="decor-vector3" alt="Vector 3">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="decor-vector6" alt="Vector 6">
 
 <div class="status-fixed-corner">
     <div class="status-pill" id="status-bt"><i class="fab fa-bluetooth-b"></i> BT Offline</div>
@@ -376,74 +364,73 @@
 <div class="wrapper">
 
     <div class="header-container">
-        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2012.png?raw=true" class="pusheen-twilight" alt="Pusheen Twilight">
-        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-title-img" alt="My Little Pusheen">
+        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2012.png?raw=true" class="pusheen-twilight" alt="Pusheen Character">
+        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-title-img" alt="My Little Pusheen Header">
     </div>
 
     <div class="main-grid">
         
         <div class="card card-firebase cell-firebase">
             <div class="card-title">
-                <i class="fas fa-cloud" style="color: #64b5f6;"></i> Fire base cloud sync
+                <i class="fas fa-cloud" style="color: #64b5f6;"></i> Firebase Cloud Sync
             </div>
             
-            <label>Api key</label>
+            <label>API Key</label>
             <input type="password" id="fb-apiKey" placeholder="AIzaSy...">
             
             <label>Database URL</label>
             <input type="text" id="fb-dbUrl" placeholder="https://project-rtdb.firebaseio.com">
             
-            <label>Node path</label>
+            <label>Node Path</label>
             <input type="text" id="fb-path" value="smarthome/ruangan1">
             
             <button class="btn-firebase" id="btn-connect-fb">
                 <i class="fas fa-link"></i> Hubungkan Firebase
             </button>
             
-            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/pngwing.com%20(4).png?raw=true" class="pusheen-bottom-left" alt="decor">
+            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="pusheen-bottom-left-decor" alt="decoration asset">
         </div>
 
         <div class="card card-mode cell-mode">
-            <div class="mode-text auto-lbl">Auto</div>
+            <div class="mode-text" id="txt-auto">Auto</div>
             
             <div class="vertical-switch auto" id="customVerticalSwitch">
                 <div class="vertical-handle"></div>
             </div>
             
-            <div class="mode-text">Manual</div>
+            <div class="mode-text" id="txt-manual">Manual</div>
             
             <button id="btnToggleMode" style="display: none;"></button>
         </div>
 
         <div class="card card-microbit cell-microbit">
-            <div style="font-size: 0.75em; font-weight: 700; color: var(--text-muted); text-align: center;">
-                Micro:bit BLE Link
+            <div style="font-size: 0.75em; font-weight: 800; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
+                Micro:bit Link
             </div>
             <button class="btn-ble" id="btn-connect-ble"><i class="fab fa-bluetooth"></i> Connect</button>
             <button class="btn-ble btn-ble-dark" id="btn-disconnect-ble" disabled>Disconnect</button>
         </div>
 
         <div class="card card-sensor cell-dht">
-            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/pngwing.com%20(3).png?raw=true" class="pusheen-dekor" alt="decor">
+            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="pusheen-top-right-decor" alt="decoration asset">
             
             <div class="sensor-header">
-                <i class="fas fa-thermometer-half" style="color: #ff65a3;"></i> DHT11 - SUHU
+                <i class="fas fa-satellite-dish" style="color: var(--pink-primary);"></i> Ultrasonik 1
             </div>
             
             <div class="sensor-main-val" id="val-jarak">--</div>
             
-            <div class="sensor-subtext">Suhu udara taman</div>
+            <div class="sensor-subtext">Pompa Relay ON jika jarak ≥ 30 cm</div>
             
-            <div id="bar-jarak" style="display:none;"></div>
-            <div class="alert-banner" id="alertEmber"></div>
+            <div id="bar-jarak" style="display:none; width:0%;"></div>
         </div>
 
         <div class="card card-relay-box cell-relay" id="card-relay">
             <div class="relay-bolt">⚡</div>
             <div class="relay-name-title">Relay</div>
-            <div class="relay-pin-info">📌 pin P13 . Untuk mengontrol nyala dan matinya kipas</div>
+            <div class="relay-pin-info">📌 Pin P13 · Mengontrol nyala/mati pompa</div>
             
-            <div class="relay-status-text" id="lbl-relay">Off</div>
+            <div class="relay-status-text" id="lbl-relay">OFF</div>
             
             <div class="relay-toggle-container" id="manual-relay" style="display:none;">
                 <label class="toggle-switch-horiz">
@@ -454,18 +441,25 @@
         </div>
 
         <div class="cell-charts-area charts-container">
+            <div class="alert-banner" id="alertEmber">
+                <div style="font-size: 1.5em;">⚠️</div>
+                <div class="alert-body">
+                    <strong>Air Ember Hampir Habis!</strong> Jarak &gt; 30 cm level air terlalu rendah.
+                </div>
+            </div>
+
             <div class="mini-chart-card">
-                <div class="mini-chart-title">Grafik Tren Jarak Utama (cm)</div>
+                <div class="mini-chart-title"><i class="fas fa-chart-area" style="color:var(--pink-primary)"></i> Tren Jarak Utama (cm)</div>
                 <div style="height: 65px;"><canvas id="chart-jarak"></canvas></div>
                 <div style="height: 0px; overflow:hidden;"><canvas id="chart-jarak-big"></canvas></div>
             </div>
+
             <div class="mini-chart-card" id="card-ember">
-                <div class="mini-chart-title" style="color: var(--text-muted);">Monitoring Jarak Manual (cm)</div>
+                <div class="mini-chart-title"><i class="fas fa-chart-line" style="color:#7ca6df"></i> Monitoring Jarak Manual (cm) <span id="ember-emoji">🪣</span></div>
                 <div style="height: 65px;"><canvas id="chart-jarak-manual"></canvas></div>
                 <div style="height: 0px; overflow:hidden;"><canvas id="chart-jarak-manual-big"></canvas></div>
                 <div id="val-jarak-manual" style="display:none;"></div>
-                <div id="bar-jarak-manual" style="display:none;"></div>
-                <span id="ember-emoji" style="display:none;"></span>
+                <div id="bar-jarak-manual" style="display:none; width:0%;"></div>
             </div>
         </div>
 
@@ -476,13 +470,13 @@
                     <div class="window-dot wd-y"></div>
                     <div class="window-dot wd-g"></div>
                 </div>
-                <div class="terminal-title-text">System_terminal</div>
-                <button id="btnClearLog" style="background:transparent; border:none; color:#ff9ebe; cursor:pointer; font-size:0.8em;"><i class="fas fa-trash"></i> Clear</button>
+                <div class="terminal-title-text">system_terminal</div>
+                <button id="btnClearLog" style="background:transparent; border:none; color:#ff9ebe; cursor:pointer; font-size:0.85em;"><i class="fas fa-trash"></i> Clear</button>
             </div>
             
             <div class="terminal-log-box" id="terminalLog"></div>
             
-            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/pngwing.com%20(5).png?raw=true" class="pusheen-bottom-center" alt="decor">
+            <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="pusheen-bottom-center-decor" style="display:none;" alt="decor">
         </div>
 
     </div>
@@ -533,12 +527,18 @@ function updateDBStatus(ok) {
 function applyMode(isAuto) {
     state.modeOtomatis = isAuto ? 1 : 0;
     const customSwitch = $('customVerticalSwitch');
+    const autoTxt = $('txt-auto');
+    const manualTxt = $('txt-manual');
 
     if (isAuto) {
         if(customSwitch) { customSwitch.className = "vertical-switch auto"; }
+        if(autoTxt) autoTxt.className = "mode-text active-auto";
+        if(manualTxt) manualTxt.className = "mode-text";
         $('manual-relay').style.display = 'none';
     } else {
         if(customSwitch) { customSwitch.className = "vertical-switch manual"; }
+        if(autoTxt) autoTxt.className = "mode-text";
+        if(manualTxt) manualTxt.className = "mode-text active-manual";
         $('manual-relay').style.display = 'block';
     }
 
@@ -547,7 +547,6 @@ function applyMode(isAuto) {
     log(`Mode → ${isAuto ? 'OTOMATIS' : 'MANUAL'}`, isAuto ? '#ff9ebe' : '#ffd24c');
 }
 
-// Hooking custom switch asset click trigger directly to core toggle interface
 $('customVerticalSwitch').onclick = () => applyMode(state.modeOtomatis === 0);
 $('btnToggleMode').onclick = () => applyMode(state.modeOtomatis === 0);
 
@@ -559,7 +558,7 @@ function updateRelayUI(isOn) {
     } else {
         card.classList.remove('on');
     }
-    $('lbl-relay').textContent = isOn ? 'On ✓' : 'Off';
+    $('lbl-relay').textContent = isOn ? 'ON ✓' : 'OFF';
     if (sw && document.activeElement !== sw) sw.checked = isOn;
 }
 
@@ -571,7 +570,7 @@ function updateSensorUI(key, val) {
 
     let numSpan = el.querySelector('.num');
     if (!numSpan) {
-        el.innerHTML = `<span class="num">${val}</span><span class="sensor-unit">°</span>`;
+        el.innerHTML = `<span class="num">${val}</span><span class="sensor-unit">cm</span>`;
     } else {
         numSpan.textContent = val;
     }
@@ -584,11 +583,13 @@ function updateSensorUI(key, val) {
         const emoji = $('ember-emoji');
         const card  = $('card-ember');
         if (val > 30) {
-            alert.classList.add('show');
+            if (alert) alert.classList.add('show');
             if (emoji) emoji.textContent = '🚨';
+            if (card) card.style.borderColor = '#ffd24c';
         } else {
-            alert.classList.remove('show');
+            if (alert) alert.classList.remove('show');
             if (emoji) emoji.textContent = '🪣';
+            if (card) card.style.borderColor = '';
         }
     }
 }
@@ -768,7 +769,8 @@ function pushHistory(key, val) {
     h.data.push(parseFloat(val) || 0);
     if (h.labels.length > MAX_PTS) { h.labels.shift(); h.data.shift(); }
 
-    [`chart-${key}`, `chart-${key}-big`].forEach(id => {
+    [`chart-${key === 'jarak_manual' ? 'jarak-manual' : key}`,
+     `chart-${key === 'jarak_manual' ? 'jarak-manual' : key}-big`].forEach(id => {
         const ch = state.charts[id];
         if (!ch) return;
         ch.data.labels           = h.labels;
