@@ -3,662 +3,456 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Little Pusheen Smart Garden 🌸</title>
+    <title>My Little Pusheen - Smart Monitoring 🌱</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --pink-main: #ff65a3;
-            --pink-light: #ffbcca;
-            --pink-border: #fca5c6;
-            --text-dark: #7a5264;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --radius: 24px;
+            --pink-main:   #ff65a3;
+            --pink-light:  #ffbcca;
+            --pink-soft:   #fff0f3;
+            --purple-terminal: #3a1225;
+            --text-dark:   #7d5267;
+            --card-bg:     rgba(255, 255, 255, 0.95);
+            --radius:      24px;
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Fredoka', sans-serif;
+            font-family: 'Nunito', sans-serif;
             min-height: 100vh;
             background: url('https://i.pinimg.com/webp/1200x/b7/6d/5f/b76d5f2ffb21263b588c23618d97ee9a.webp') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-dark);
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 50px 20px;
             overflow-x: hidden;
         }
 
-        /* ===== CONTAINER UTAMA LAYOUT MACAM FIGMA ===== */
-        .ui-container {
-            width: 1000px;
-            height: 700px;
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
             position: relative;
-            z-index: 1;
         }
 
-        /* ===== DEKORASI ASSET GAMBAR JUDUL & HIASAN ===== */
-        .main-title {
-            position: absolute;
-            top: 25px;
-            left: 260px;
-            width: 420px;
-            z-index: 5;
-        }
+        /* ===== DECORATIVE STARS BACKGROUND ===== */
+        .decor-star { position: absolute; pointer-events: none; z-index: 1; width: 35px; }
+        .star-top-left-1 { top: -30px; left: 12%; }
+        .star-top-left-2 { top: 10px; left: 24%; width: 25px; }
 
-        .decor-twilight {
-            position: absolute;
-            top: -20px;
-            left: 5px;
-            width: 240px;
-            z-index: 4;
-        }
-
-        .decor-star {
-            position: absolute;
-            top: 50px;
-            left: 690px;
-            width: 45px;
-            z-index: 4;
-        }
-
-        .decor-orange {
-            position: absolute;
-            top: 195px;
-            right: -10px;
-            width: 100px;
-            z-index: 4;
-        }
-
-        .decor-unicorn {
-            position: absolute;
-            bottom: -5px;
-            left: -10px;
-            width: 145px;
-            z-index: 4;
-        }
-
-        .decor-fluttershy {
-            position: absolute;
-            bottom: -15px;
-            left: 430px;
-            width: 140px;
-            z-index: 4;
-        }
-
-        /* ===== BADGES STATUS JARINGAN ===== */
-        .status-container {
-            position: absolute;
-            top: -15px;
-            right: 0;
-            display: flex;
-            gap: 10px;
-            z-index: 10;
+        /* ===== STATUS BADGES ===== */
+        .status-wrap {
+            position: fixed; top: 20px; right: 20px;
+            display: flex; flex-direction: column; gap: 8px; z-index: 1000;
         }
         .badge {
-            background: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: 700;
-            border: 2px solid var(--pink-light);
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            background: white; padding: 8px 16px; border-radius: 30px;
+            font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.05); border: 2px solid #e2e8f0; color: #94a3b8;
         }
-        .badge.online { 
-            color: white; 
-            background: var(--pink-main); 
-            border-color: var(--pink-main); 
+        .badge.online { color: var(--pink-main); border-color: var(--pink-light); background: var(--pink-soft); }
+
+        /* ===== UI TOP HEADER ===== */
+        .header-container {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .main-logo {
+            max-width: 360px;
+            height: auto;
+            display: inline-block;
         }
 
-        /* ===== BASE STYLING KOTAK KARTU ===== */
+        /* ===== LAYOUT GRID (MATCHING IMAGE POSITION) ===== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .left-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .right-pane {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .full-width-cell {
+            grid-column: span 2;
+        }
+
+        /* ===== CARD ARCHITECTURE ===== */
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            box-shadow: 0 8px 20px rgba(220, 150, 170, 0.2);
-            padding: 25px;
-            position: absolute;
-            border: 1px solid rgba(255,255,255,0.8);
+            padding: 30px;
+            box-shadow: 0 12px 24px rgba(125, 82, 103, 0.1);
+            border: 4px solid white;
+            position: relative;
         }
 
-        .card-title {
-            font-size: 20px;
-            font-weight: 700;
+        .card-title-cute {
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 1.4em;
             color: var(--pink-main);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            text-transform: capitalize;
+            gap: 10px;
         }
 
-        /* ===== KOTAK KIRI: FIREBASE CLOUD SYNC ===== */
-        .firebase-card {
-            width: 510px;
-            height: 400px;
-            left: 0;
-            bottom: 45px;
+        /* ===== FORMS, INPUTS & CUTE BUTTONS ===== */
+        label { 
+            display: block; font-weight: 800; font-size: .85em; 
+            color: var(--pink-main); margin-bottom: 6px; text-transform: capitalize; 
         }
-
-        label {
-            display: block;
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--pink-main);
-            margin-bottom: 6px;
-        }
-
         input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 3px solid var(--pink-light);
-            border-radius: 16px;
-            font-size: 14px;
-            color: var(--text-dark);
-            background: white;
-            outline: none;
-            margin-bottom: 18px;
-            font-family: 'Fredoka', sans-serif;
-            font-weight: 600;
+            width: 100%; padding: 12px 16px; border: 3px solid var(--pink-light);
+            border-radius: 20px; font-size: .95em; color: var(--text-dark);
+            background: white; outline: none; transition: all .3s; font-weight: 700; margin-bottom: 15px;
         }
-        input[type=password] { font-family: 'Space Mono', monospace; }
         input:focus { border-color: var(--pink-main); }
+        
+        .btn-cute {
+            background: var(--pink-main); color: white; border: none;
+            padding: 14px 24px; border-radius: 30px; font-weight: 900; font-size: 1em;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            gap: 10px; transition: all .25s; width: 100%;
+            font-family: 'Fredoka One', sans-serif;
+            box-shadow: 0 4px 0 #d93d7a;
+        }
+        .btn-cute:active { transform: translateY(4px); box-shadow: none; }
+        .btn-cute:disabled { background: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
+        .btn-secondary { background: #b1859b; box-shadow: 0 4px 0 #855b71; }
 
-        .btn-connect {
-            background: var(--pink-main);
-            color: white;
-            border: none;
-            padding: 12px 22px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: 'Fredoka', sans-serif;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform 0.1s;
+        /* ===== INDIVIDUAL CARD SPECIFICS ===== */
+        /* Microbit Card */
+        .microbit-card p {
+            font-size: 0.85em; color: #a17b8e; line-height: 1.6; margin-bottom: 20px; font-weight: 600;
         }
-        .btn-connect:active { transform: scale(0.98); }
 
-        /* Wadah Kontrol Micro:bit Bluetooth BLE */
-        .ble-control-box {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-ble {
-            background: #a3b8cc;
-            color: white;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Fredoka', sans-serif;
-        }
-        .btn-ble:disabled { background: #e2e8f0; cursor: not-allowed; color: #94a3b8; }
-
-        /* ===== KOTAK KANAN ATAS: DHT11 SENSOR SUHU ===== */
-        .dht-card {
-            width: 270px;
-            height: 200px;
-            right: 200px;
-            top: 105px;
-            padding: 20px;
-        }
-        .dht-header {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--pink-light);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .dht-header img { width: 14px; height: 14px; }
-        .dht-value {
-            font-size: 56px;
-            font-weight: 700;
-            color: var(--pink-main);
+        /* DHT11 Suhu Card */
+        .suhu-display-container {
             text-align: center;
-            margin-top: 15px;
+            margin: 15px 0;
             position: relative;
-            display: block;
+        }
+        .suhu-value {
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 4.5em;
+            color: #ff5252;
+            line-height: 1;
+            display: inline-block;
+            position: relative;
             letter-spacing: -2px;
         }
-        .dht-unit {
-            font-size: 20px;
-            position: absolute;
-            top: 5px;
-            color: var(--pink-main);
-            margin-left: 5px;
-        }
-        .dht-desc {
-            font-size: 11px;
-            color: #bfa3b0;
-            text-align: center;
-            margin-top: 5px;
-            font-weight: 600;
-        }
+        .suhu-degree-symbol { font-size: 0.4em; position: absolute; top: 0; right: -25px; }
+        .suhu-subtitle { text-align: center; font-weight: 700; color: #a3728a; font-size: 0.9em; margin-bottom: 10px; }
+        .chart-mini-container { height: 70px; width: 100%; margin-top: 10px; }
 
-        /* ===== KOTAK TENGAH: VERTICAL MODE SWITCH TOGGLE ===== */
-        .toggle-card {
-            width: 150px;
-            height: 180px;
-            right: 490px;
-            bottom: 45px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 10px;
+        /* Toggle Auto/Manual Card */
+        .mode-swap-wrapper {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 100%;
         }
-        .toggle-label-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--pink-main);
+        .mode-text { font-family: 'Fredoka One', sans-serif; font-size: 1.4em; color: var(--pink-main); }
+        .mode-text.manual-lbl { color: #ffe66d; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+        
+        .switch-track-cute {
+            width: 55px; height: 100px; background: #fff5a3; border-radius: 40px;
+            position: relative; cursor: pointer; border: 4px solid white;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
         }
-        .switch-btn-vertical {
-            background: #ffe699;
-            border: none;
-            width: 44px;
-            height: 84px;
-            border-radius: 22px;
-            position: relative;
-            cursor: pointer;
-            padding: 4px;
+        .switch-ball-cute {
+            width: 37px; height: 37px; background: var(--pink-light); border-radius: 50%;
+            position: absolute; left: 5px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .switch-btn-vertical .ball {
-            width: 36px;
-            height: 36px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-        }
-        /* Kondisi visual saat mode manual aktif (pindah ke bawah) */
-        .switch-btn-vertical.manual-active { background: #ffccd5; }
-        .switch-btn-vertical.manual-active .ball { top: 44px; }
+        .switch-track-cute.auto .switch-ball-cute { top: 5px; background: #ff65a3; }
+        .switch-track-cute.manual .switch-ball-cute { top: 50px; background: #b5e2ff; }
 
-        /* ===== KOTAK KANAN TENGAH: RELAY CONTROLLER ===== */
-        .relay-card {
-            width: 270px;
-            height: 180px;
-            right: 200px;
-            bottom: 245px;
-            text-align: center;
-            padding: 15px;
+        /* Relay Card */
+        .relay-wrapper {
+            text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
         }
-        .relay-icon {
-            font-size: 32px;
-            color: #ffcc00;
-            margin-bottom: 2px;
-        }
-        .relay-card-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--pink-main);
-            margin-bottom: 2px;
-        }
-        .relay-subtitle {
-            font-size: 10px;
-            color: #bfa3b0;
-            line-height: 1.3;
-            margin-bottom: 10px;
-            padding: 0 5px;
-        }
-        .relay-status-label {
-            font-size: 24px;
-            font-weight: 700;
-            color: #bfa3b0;
-            text-transform: capitalize;
-        }
-        .relay-status-label.on-state { color: var(--pink-main); }
+        .relay-bolt { font-size: 3.5em; color: #ffd15c; margin-bottom: 5px; animation: bounce 3s infinite; }
+        .relay-title-text { font-family: 'Fredoka One', sans-serif; font-size: 1.4em; color: #e07a5f; margin-bottom: 4px; }
+        .relay-meta { font-size: 0.78em; color: #a3728a; font-weight: 600; line-height: 1.4; margin-bottom: 10px; padding: 0 10px; }
+        .relay-state-output { font-family: 'Fredoka One', sans-serif; font-size: 2em; color: #94a3b8; text-transform: capitalize; }
+        .relay-state-output.on { color: var(--pink-main); }
 
-        /* Saklar Horizontal Pendukung Mode Manual */
-        .manual-relay-switch-container {
-            display: none;
-            justify-content: center;
-            margin-top: 5px;
+        /* Slide switch untuk manual mode control */
+        .manual-toggle-element { position: relative; display: inline-block; width: 50px; height: 26px; margin-top: 5px; }
+        .manual-toggle-element input { opacity: 0; width: 0; height: 0; }
+        .slider-round {
+            position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: .3s; border-radius: 34px;
         }
-        .horizontal-switch {
-            position: relative;
-            display: inline-block;
-            width: 46px;
-            height: 22px;
+        .slider-round:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%;
         }
-        .horizontal-switch input { opacity: 0; width: 0; height: 0; }
-        .horiz-slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 20px;
-        }
-        .horiz-slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-        input:checked + .horiz-slider { background-color: var(--pink-main); }
-        input:checked + .horiz-slider:before { transform: translateX(24px); }
+        input:checked + .slider-round { background-color: var(--pink-main); }
+        input:checked + .slider-round:before { transform: translateX(24px); }
 
-
-        /* ===== KOTAK KANAN BAWAH: SYSTEM TERMINAL LOGS ===== */
+        /* System Terminal Card */
         .terminal-box {
-            width: 460px;
-            height: 240px;
-            right: 15px;
-            bottom: 15px;
-            background: #2e081c;
-            border-radius: var(--radius);
-            padding: 15px;
-            border: 4px solid #4a1230;
+            background: var(--purple-terminal); border-radius: var(--radius); padding: 25px; border: 4px solid #542239;
         }
-        .terminal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .terminal-header-pane { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .terminal-header-title { color: var(--pink-light); font-family: 'Space Mono', monospace; font-size: .85em; display: flex; align-items: center; gap: 8px; }
+        .terminal-dots-wrap { display: flex; gap: 6px; }
+        .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .t-dot.red { background: #ff5f56; } .t-dot.yellow { background: #ffbd2e; } .t-dot.green { background: #27c93f; }
+        
+        .terminal-screen {
+            height: 160px; overflow-y: auto; font-family: 'Space Mono', monospace;
+            background: rgba(0,0,0,0.2); border-radius: 14px; padding: 15px; font-size: 11px; color: #ffbcca;
         }
-        .terminal-dots {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot.r { background: #ff5f56; }
-        .dot.y { background: #ffbd2e; }
-        .dot.g { background: #27c93f; }
-        .terminal-title {
-            color: #ffbcca;
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
-            margin-left: 8px;
-        }
-        .terminal-logs {
-            height: 165px;
-            overflow-y: auto;
-            font-family: 'Space Mono', monospace;
-            background: rgba(0,0,0,0.25);
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 10px;
-            color: #ffbcca;
-            list-style: none;
-            text-align: left;
-        }
-        .terminal-logs::-webkit-scrollbar { width: 4px; }
-        .terminal-logs::-webkit-scrollbar-thumb { background: var(--pink-main); border-radius: 4px; }
-        .log-row { margin-bottom: 2px; }
-        .log-timestamp { color: var(--pink-light); margin-right: 5px; opacity: 0.8; }
-        .btn-clear-terminal {
-            background: transparent;
-            border: 1.5px solid var(--pink-light);
-            color: var(--pink-light);
-            padding: 2px 8px;
-            border-radius: 8px;
-            font-size: 10px;
-            cursor: pointer;
-            font-family: 'Space Mono', monospace;
-        }
-        .btn-clear-terminal:hover { background: var(--pink-main); color: white; border-color: var(--pink-main); }
+        .terminal-screen::-webkit-scrollbar { width: 5px; }
+        .terminal-screen::-webkit-scrollbar-thumb { background: var(--pink-main); border-radius: 4px; }
+        .log-row { margin-bottom: 4px; line-height: 1.4; }
+        .log-timestamp { color: var(--pink-main); opacity: .7; margin-right: 6px; }
 
-        /* AREA GRAFIK DISEMBUNYIKAN AGAR TIDAK MERUSAK KELURUSAN UI MOCKUP */
-        .hidden-graph-elements { display: none !important; }
+        /* ===== ABSOLUTE PLACED PUSHEEN CHARACTERS ===== */
+        .pusheen-img { position: absolute; pointer-events: none; z-index: 5; }
+        .pusheen-reader  { bottom: -5px; right: -75px; width: 90px; } /* Dekat Microbit */
+        .pusheen-unicorn { bottom: -45px; left: -35px; width: 115px; } /* Pojok kiri Firebase */
+        .pusheen-sitting { bottom: 25px; right: -55px; width: 95px; }  /* Samping Suhu */
+        .pusheen-angel   { bottom: -45px; left: -30px; width: 105px; } /* Pojok kiri Terminal */
 
-        /* Responsivitas Skala Layar */
+        /* ===== RESPONSIVE MEDIA QUERIES ===== */
         @media (max-width: 1024px) {
-            body { overflow: auto; padding: 20px; }
-            .ui-container { transform: scale(0.85); transform-origin: center top; margin-top: -30px; }
+            .main-grid { grid-template-columns: 1fr; }
+            .pusheen-img { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div class="status-container">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="decor-star star-top-left-1" alt="star decoration">
+<img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="decor-star star-top-left-2" alt="star decoration">
+
+<div class="status-wrap">
     <div class="badge" id="status-bt"><i class="fab fa-bluetooth-b"></i> BT Offline</div>
     <div class="badge" id="status-fb"><i class="fas fa-cloud"></i> DB Offline</div>
 </div>
 
-<div class="ui-container">
+<div class="wrapper">
 
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-title" alt="Title">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="decor-twilight" alt="Twilight">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Star%202.png?raw=true" class="decor-star" alt="Star">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="decor-orange" alt="Orange">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="decor-unicorn" alt="Unicorn">
-    <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="decor-fluttershy" alt="Fluttershy">
+    <div class="header-container">
+        <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%2013.png?raw=true" class="main-logo" alt="My Little Pusheen Dashboard Header">
+    </div>
 
-    <div class="card firebase-card">
-        <div class="card-title">
-            <i class="fas fa-cloud"></i> Fire base cloud sync
-        </div>
+    <div class="main-grid">
         
-        <label>Api key</label>
-        <input type="password" id="fb-apiKey" placeholder="Masukkan Firebase API Key...">
-        
-        <label>Database URL</label>
-        <input type="text" id="fb-dbUrl" placeholder="https://database-url-default.firebaseio.com">
-        
-        <label>Node path</label>
-        <input type="text" id="fb-path" value="smarthome/ruangan1">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-            <button class="btn-connect" id="btn-connect-fb">
-                <i class="fas fa-link"></i> Hubungkan Firebase
-            </button>
+        <div class="left-pane">
             
-            <div class="ble-control-box">
-                <button class="btn-ble" id="btn-connect-ble">Connect Microbit</button>
-                <button class="btn-ble" id="btn-disconnect-ble" disabled>Disconnect</button>
+            <div class="card microbit-card">
+                <div class="card-title-cute" style="color: #fda4af;"><i class="fas fa-microchip"></i> Connect Microbit</div>
+                <p>Pastikan Micro:bit menyala dan ekstensi <span style="color: var(--pink-main); font-weight:700;">Bluetooth UART</span> aktif di MakeCode.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn-cute" id="btn-connect-ble">
+                        <i class="fab fa-bluetooth"></i> Connect Micro:Bit
+                    </button>
+                    <button class="btn-cute btn-secondary" id="btn-disconnect-ble" disabled>
+                        <i class="fas fa-times"></i> Disconnect
+                    </button>
+                </div>
+                <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%204.png?raw=true" class="pusheen-img pusheen-reader" alt="pusheen reading">
             </div>
-        </div>
-    </div>
 
-    <div class="card dht-card">
-        <div class="dht-header">
-            <img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f321.png" alt="thermometer">
-            <span>DHT11 - SUHU</span>
-        </div>
-        <div class="dht-value" id="val-suhu">
-            --<span class="dht-unit">°</span>
-        </div>
-        <div class="dht-desc">Suhu udara taman</div>
-        
-        <div id="val-jarak" style="display:none;">--</div>
-        <div id="bar-jarak" style="display:none;"></div>
-        <div id="val-jarak-manual" style="display:none;">--</div>
-        <div id="bar-jarak-manual" style="display:none;"></div>
-        <div id="alertEmber" style="display:none;"></div>
-    </div>
-
-    <div class="card toggle-card">
-        <div class="toggle-label-text" id="modePillText">Auto</div>
-        <button class="switch-btn-vertical" id="btnToggleMode" title="Ubah Mode Kontrol">
-            <div class="ball"></div>
-        </button>
-        <div id="modePill" class="mode-pill auto" style="display:none;"></div>
-    </div>
-
-    <div class="card relay-card">
-        <div class="relay-icon" id="icon-relay">⚡</div>
-        <div class="relay-card-title">Relay</div>
-        <div class="relay-subtitle">📌 pin P13 . Untuk mengontrol nyala dan matinya kipas</div>
-        <div class="relay-status-label" id="lbl-relay">Off</div>
-        
-        <div class="manual-relay-switch-container" id="manual-relay">
-            <label class="horizontal-switch">
-                <input type="checkbox" id="sw-relay" onchange="window.toggleRelay(this.checked)">
-                <span class="horiz-slider"></span>
-            </label>
-        </div>
-    </div>
-
-    <div class="terminal-box">
-        <div class="terminal-header">
-            <div class="terminal-dots">
-                <div class="dot r"></div>
-                <div class="dot y"></div>
-                <div class="dot g"></div>
-                <span class="terminal-title">System_terminal</span>
+            <div class="card">
+                <div class="card-title-cute"><i class="fas fa-cloud"></i> Fire base cloud sync</div>
+                
+                <label for="fb-apiKey">Api key</label>
+                <input type="password" id="fb-apiKey">
+                
+                <label for="fb-dbUrl">Database URL</label>
+                <input type="text" id="fb-dbUrl">
+                
+                <label for="fb-path">Node path</label>
+                <input type="text" id="fb-path" value="smarthome/ruangan1">
+                
+                <button class="btn-cute" id="btn-connect-fb" style="margin-top: 5px;">
+                    <i class="fas fa-link"></i> Hubungkan Firebase
+                </button>
+                
+                <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="pusheen-img pusheen-unicorn" alt="pusheen pegacorn">
             </div>
-            <button class="btn-clear-terminal" id="btnClearLog">Clear</button>
+
         </div>
-        <div id="terminalLog" class="terminal-logs"></div>
+
+        <div class="right-pane">
+            
+            <div class="card full-width-cell">
+                <div class="card-title-cute" style="color: #ff65a3;"><i class="fas fa-thermometer-half"></i> DHT11 - SUHU</div>
+                <div class="suhu-display-container">
+                    <div class="suhu-value" id="val-suhu">--<span class="suhu-degree-symbol">°</span></div>
+                </div>
+                <div class="suhu-subtitle">Suhu udara taman</div>
+                
+                <div class="chart-mini-container"><canvas id="chart-suhu-mini"></canvas></div>
+
+                <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="pusheen-img pusheen-sitting" alt="pusheen eating snack">
+            </div>
+
+            <div class="card" id="btnToggleMode" style="cursor: pointer;">
+                <div class="mode-swap-wrapper">
+                    <div class="mode-text" id="modeTxt">Auto</div>
+                    <div class="switch-track-cute auto" id="cuteSwitch">
+                        <div class="switch-ball-cute"></div>
+                    </div>
+                    <div class="mode-text manual-lbl" id="modeTxtSub">Manual</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="relay-wrapper">
+                    <div class="relay-bolt"><i class="fas fa-bolt"></i></div>
+                    <div class="relay-title-text">Relay</div>
+                    <div class="relay-meta">📌 pin P13 . Untuk mengontrol nyala dan matinya kipas</div>
+                    <div class="relay-state-output" id="lbl-relay">Off</div>
+                    
+                    <div id="manual-relay-wrap" style="display: none; margin-top: 5px;">
+                        <label class="manual-toggle-element">
+                            <input type="checkbox" id="sw-relay" onchange="window.toggleRelay(this.checked)">
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card full-width-cell terminal-box">
+                <div class="terminal-header-pane">
+                    <div class="terminal-header-title">
+                        <div class="terminal-dots-wrap">
+                            <div class="t-dot red"></div><div class="t-dot yellow"></div><div class="t-dot green"></div>
+                        </div>
+                        <span>System_terminal</span>
+                    </div>
+                    <button class="btn-cute btn-secondary" id="btnClearLog" style="padding: 4px 12px; font-size: 0.7em; width: auto; font-family: monospace; border-radius: 8px; box-shadow: 0 2px 0 #542239;">
+                        Clear
+                    </button>
+                </div>
+                <div id="terminalLog" class="terminal-screen"></div>
+                
+                <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="pusheen-img pusheen-angel" alt="pusheen angel wings">
+            </div>
+
+        </div>
+
     </div>
-
-</div>
-
-<div class="hidden-graph-elements">
-    <canvas id="chart-jarak"></canvas>
-    <canvas id="chart-jarak-manual"></canvas>
-    <canvas id="chart-jarak-big"></canvas>
-    <canvas id="chart-jarak-manual-big"></canvas>
 </div>
 
 <script type="module">
 import { initializeApp, getApps, deleteApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-// =====================================================================
-// CORE ENGINE LOGIC STORAGE
-// =====================================================================
+// Application State Management
 const state = {
     db: null, path: "", unsub: null, data: {},
     device: null, txChar: null, rxChar: null,
     bleConnected: false, bleBuffer: "",
-    modeOtomatis: 1,   
+    modeOtomatis: 1,   // Default State: 1 = Automatic, 0 = Manual Operation Mode
     charts: {},
     history: {
-        jarak:        { labels: [], data: [] },
-        jarak_manual: { labels: [], data: [] }
+        suhu: { labels: [], data: [] }
     }
 };
 
-const MAX_PTS = 30;
-const $ = id => document.getElementById(id);
+const MAX_PTS = 20; // Batasan jumlah memori titik data grafik
+const $ = id => document.getElementById(id); // Shortcut handler DOM element selection
 
-// =====================================================================
-// TERMINAL LOG CONTROLLER
-// =====================================================================
+// Logging Framework System Console Terminal
 function log(msg, color = "#ffbcca") {
     const t = new Date().toLocaleTimeString('id-ID', { hour12: false });
     $('terminalLog').insertAdjacentHTML('afterbegin',
         `<div class="log-row"><span class="log-timestamp">[${t}]</span><span style="color:${color}"> ${msg}</span></div>`);
 }
 
-// =====================================================================
-// HARDWARE CONNECTION STATUS BADGES
-// =====================================================================
+// Network Link Status Visual Management
 function updateBTStatus() {
     $('btn-connect-ble').disabled    = state.bleConnected;
     $('btn-disconnect-ble').disabled = !state.bleConnected;
     const b = $('status-bt');
-    b.innerHTML = state.bleConnected
-        ? '<i class="fab fa-bluetooth-b"></i> BT Connected'
-        : '<i class="fab fa-bluetooth-b"></i> BT Offline';
+    b.innerHTML = state.bleConnected ? '<i class="fab fa-bluetooth-b"></i> BT Connected' : '<i class="fab fa-bluetooth-b"></i> BT Offline';
     b.className = 'badge' + (state.bleConnected ? ' online' : '');
 }
 function updateDBStatus(ok) {
     const b = $('status-fb');
-    b.innerHTML = ok
-        ? '<i class="fas fa-cloud"></i> DB Synced'
-        : '<i class="fas fa-cloud"></i> DB Offline';
+    b.innerHTML = ok ? '<i class="fas fa-cloud"></i> DB Synced' : '<i class="fas fa-cloud"></i> DB Offline';
     b.className = 'badge' + (ok ? ' online' : '');
 }
 
-// =====================================================================
-// SYSTEM OPERATION MODE SWITCHER (Auto / Manual Toggle Logic)
-// =====================================================================
+// System Operation Mode Handler (Auto Control/Manual Trigger Handler Swap)
 function applyMode(isAuto) {
     state.modeOtomatis = isAuto ? 1 : 0;
-    const pillText = $('modePillText');
-    const switchBtn = $('btnToggleMode');
+    const switchBtn = $('cuteSwitch');
+    const txtMain = $('modeTxt');
+    const txtSub = $('modeTxtSub');
 
     if (isAuto) {
-        pillText.textContent = "Auto";
-        switchBtn.classList.remove('manual-active');
-        $('manual-relay').style.display = 'none';
+        switchBtn.className = "switch-track-cute auto";
+        txtMain.style.color = "var(--pink-main)";
+        txtSub.style.color = "#cbd5e1";
+        $('manual-relay-wrap').style.display = 'none';
     } else {
-        pillText.textContent = "Manual";
-        switchBtn.classList.add('manual-active');
-        $('manual-relay').style.display = 'inline-flex';
+        switchBtn.className = "switch-track-cute manual";
+        txtMain.style.color = "#cbd5e1";
+        txtSub.style.color = "#e07a5f";
+        $('manual-relay-wrap').style.display = 'block';
     }
 
     sendBLE("mode", isAuto ? 1 : 0);
     if (state.db) update(ref(state.db, `${state.path}/mode`), { value: isAuto ? 1 : 0 });
-    log(`Mode Transisi → ${isAuto ? 'AUTOMATIC' : 'MANUAL'}`, isAuto ? '#ffbcca' : '#ffe391');
+    log(`Mode sistem diubah → ${isAuto ? 'AUTO' : 'MANUAL'}`, isAuto ? '#ff65a3' : '#ffd15c');
 }
 
 $('btnToggleMode').onclick = () => applyMode(state.modeOtomatis === 0);
 
-// =====================================================================
-// RELAY OUTPUT VIEW UPDATER
-// =====================================================================
+// Actuator Status (Relay Control Node Handler)
 function updateRelayUI(isOn) {
     const lbl = $('lbl-relay');
-    const sw   = $('sw-relay');
-    
+    const sw = $('sw-relay');
     if (isOn) {
-        lbl.textContent = 'On';
-        lbl.classList.add('on-state');
+        lbl.textContent = "On";
+        lbl.className = "relay-state-output on";
     } else {
-        lbl.textContent = 'Off';
-        lbl.classList.remove('on-state');
+        lbl.textContent = "Off";
+        lbl.className = "relay-state-output";
     }
     if (sw && document.activeElement !== sw) sw.checked = isOn;
 }
 
-// =====================================================================
-// SENSOR VALUE DATA MAP VISUALIZATION
-// =====================================================================
-function updateSensorUI(key, val) {
-    if (key === 'jarak') {
-        const el = $('val-suhu');
-        if (el) {
-            el.innerHTML = `${val}<span class="dht-unit">°</span>`;
-        }
-    }
+// DHT11 Sensor Data Processor Update Interface
+function updateSensorUI(val) {
+    const el = $('val-suhu');
+    if (!el) return;
+    el.innerHTML = `${val}<span class="suhu-degree-symbol">°</span>`;
 }
 
-// =====================================================================
-// MICROBIT UART BLUETOOTH BLE DRIVER ENGINE
-// =====================================================================
+// Web Bluetooth API Logic Integration
 const SVC = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const TX  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 const RX  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
 async function connectBLE() {
     try {
-        if (!navigator.bluetooth) throw new Error("Browser tidak mensuport Bluetooth API.");
-        log("Mencari perangkat Micro:bit...", "#ffe391");
+        if (!navigator.bluetooth) throw new Error("Browser ini tidak mendukung fitur Web Bluetooth.");
+        log("Mencari perangkat Micro:bit...", "#ffd15c");
         state.device = await navigator.bluetooth.requestDevice({
             filters: [{ namePrefix: "BBC micro:bit" }],
             optionalServices: [SVC]
         });
         state.device.addEventListener("gattserverdisconnected", () => {
             state.bleConnected = false; updateBTStatus();
-            log("Koneksi BLE Terputus!", "#ff5f56");
+            log("Koneksi Bluetooth Terputus!", "#ff5252");
         });
         const server  = await state.device.gatt.connect();
         const service = await server.getPrimaryService(SVC);
@@ -667,8 +461,8 @@ async function connectBLE() {
         await state.txChar.startNotifications();
         state.txChar.addEventListener("characteristicvaluechanged", onBLEData);
         state.bleConnected = true; updateBTStatus();
-        log(`✓ Terhubung via BLE: ${state.device.name}`, "#27c93f");
-    } catch (e) { log(`BLE Error: ${e.message}`, "#ff5f56"); }
+        log(`✓ Sukses Terhubung Ke: ${state.device.name}`, "#ff65a3");
+    } catch (e) { log(`Error BLE: ${e.message}`, "#ff5252"); }
 }
 
 function onBLEData(event) {
@@ -681,8 +475,9 @@ function onBLEData(event) {
     lines.forEach(line => { const t = line.trim(); if (t) processBLELine(t); });
 }
 
+// Memproses baris data UART masuk dari microbit hardware
 function processBLELine(txt) {
-    log(`RX ← ${txt}`, "#27c93f");
+    log(`RX ← ${txt}`, "#ffbcca");
     if (!txt.includes(',')) return;
 
     const idx = txt.indexOf(',');
@@ -696,19 +491,14 @@ function processBLELine(txt) {
     }
     if (key === "Relay") {
         updateRelayUI(val === 1);
-        if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val, tipe: 'switch' });
+        if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
         return;
     }
-    if (key === "jarak") {
-        updateSensorUI("jarak", val);
-        pushHistory("jarak", val);
-        if (state.db) update(ref(state.db, `${state.path}/jarak`), { value: val, tipe: 'sensor', satuan: 'cm' });
-        return;
-    }
-    if (key === "jarak_manual") {
-        updateSensorUI("jarak_manual", val);
-        pushHistory("jarak_manual", val);
-        if (state.db) update(ref(state.db, `${state.path}/jarak_manual`), { value: val, tipe: 'sensor', satuan: 'cm' });
+    // Konversi key ultrasonic bawaan ('jarak') agar dibaca sebagai 'suhu' dht11
+    if (key === "suhu" || key === "jarak") { 
+        updateSensorUI(val);
+        pushHistory(val);
+        if (state.db) update(ref(state.db, `${state.path}/suhu`), { value: val, tipe: 'sensor', satuan: 'C' });
         return;
     }
 }
@@ -718,8 +508,8 @@ async function sendBLE(key, val) {
     const payload = `${key},${val}\n`;
     try {
         await state.rxChar.writeValue(new TextEncoder().encode(payload));
-        log(`TX → ${payload.trim()}`, "#ffe391");
-    } catch (e) { log(`TX Error: ${e.message}`, "#ff5f56"); }
+        log(`TX → ${payload.trim()}`, "#ffd15c");
+    } catch (e) { log(`Gagal Kirim Data: ${e.message}`, "#ff5252"); }
 }
 
 window.toggleRelay = (isChecked) => {
@@ -728,17 +518,15 @@ window.toggleRelay = (isChecked) => {
     updateRelayUI(isChecked);
     sendBLE("Relay", val);
     if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
-    log(`Kipas Relay → ${isChecked ? 'ON' : 'OFF'}`, "#ffe391");
+    log(`Aksi Manual Kipas → ${isChecked ? 'ON' : 'OFF'}`, "#ff65a3");
 };
 
-// =====================================================================
-// GOOGLE FIREBASE REALTIME CONNECTION MAP
-// =====================================================================
+// Firebase Cloud Synchronization System Core Backend
 async function connectFirebase() {
     const apiKey = $('fb-apiKey').value.trim();
     const dbUrl  = $('fb-dbUrl').value.trim();
     const path   = $('fb-path').value.trim() || "smarthome/ruangan1";
-    if (!apiKey || !dbUrl) { alert("Lengkapi Isian API Key dan Database URL!"); return; }
+    if (!apiKey || !dbUrl) { alert("Tolong lengkapi kolom API Key dan Database URL Firebase!"); return; }
 
     try {
         const apps = getApps();
@@ -751,13 +539,12 @@ async function connectFirebase() {
         });
         state.db   = getDatabase(app);
         state.path = path;
-        log(`Menyambungkan Realtime DB → /${path}`, "#ffe391");
+        log(`Menyambungkan Sesi Database... /${path}`, "#ffd15c");
 
         const initData = {
-            jarak:        { tipe: 'sensor', value: 0, satuan: 'cm' },
-            jarak_manual: { tipe: 'sensor', value: 0, satuan: 'cm' },
-            relay:        { tipe: 'switch', value: 0 },
-            mode:         { tipe: 'switch', value: 1 }
+            suhu:  { tipe: 'sensor', value: 0, satuan: 'C' },
+            relay: { tipe: 'switch', value: 0 },
+            mode:  { tipe: 'switch', value: 1 }
         };
 
         state.unsub = onValue(ref(state.db, path), (snap) => {
@@ -766,82 +553,80 @@ async function connectFirebase() {
             state.data = d;
             updateDBStatus(true);
 
-            if (d.jarak)        updateSensorUI("jarak",        d.jarak.value ?? 0);
-            if (d.jarak_manual) updateSensorUI("jarak_manual", d.jarak_manual.value ?? 0);
-            if (d.relay)        updateRelayUI((d.relay.value ?? 0) === 1);
-            if (d.mode)         applyMode((d.mode.value ?? 1) === 1);
-        }, err => { log(`DB Error: ${err.message}`, "#ff5f56"); updateDBStatus(false); });
+            if (d.suhu)  { updateSensorUI(d.suhu.value ?? 0); pushHistory(d.suhu.value ?? 0); }
+            if (d.relay) updateRelayUI((d.relay.value ?? 0) === 1);
+            if (d.mode)  applyMode((d.mode.value ?? 1) === 1);
+        }, err => { log(`Firebase Error: ${err.message}`, "#ff5252"); updateDBStatus(false); });
 
-        log(`✓ Firebase Berhasil Tersinkronisasi: /${path}`, "#27c93f");
-        localStorage.setItem('smarthome_cfg', JSON.stringify({ apiKey, dbUrl, path }));
-    } catch (e) { log(`DB Error: ${e.message}`, "#ff5f56"); updateDBStatus(false); }
+        log(`✓ Sinkronisasi Cloud Firebase Berhasil!`, "#ff65a3");
+        localStorage.setItem('pusheen_garden_cfg', JSON.stringify({ apiKey, dbUrl, path }));
+    } catch (e) { log(`Koneksi DB Gagal: ${e.message}`, "#ff5252"); updateDBStatus(false); }
 }
 
-// =====================================================================
-// CHART REPLAY ENGINE BACKGROUND LOOP
-// =====================================================================
-const CHART_CFG = {
-    jarak:        { color: '#ff65a3', label: 'Jarak' },
-    jarak_manual: { color: '#ffbcca', label: 'Jarak Manual' }
-};
-
-function makeChart(canvasId, key, height = 90) {
+// ChartJS Realtime Generation Engine (Desain Chart Dipertahankan Asli)
+function makeChart(canvasId, height = 70) {
     const canvas = $(canvasId);
     if (!canvas) return null;
-    if (state.charts[canvasId]) state.charts[canvasId].destroy();
     const ctx = canvas.getContext('2d');
+    
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, 'rgba(255, 101, 163, 0.4)');
+    grad.addColorStop(1, 'rgba(255, 101, 163, 0.0)');
+
     return new Chart(ctx, {
         type: 'line',
         data: {
-            labels:   state.history[key].labels,
-            datasets: [{ data: state.history[key].data, borderColor: CHART_CFG[key].color, borderWidth: 1, pointRadius: 0, fill: false }]
+            labels: state.history.suhu.labels,
+            datasets: [{ 
+                data: state.history.suhu.data, 
+                borderColor: '#ff65a3', 
+                backgroundColor: grad, 
+                borderWidth: 3, 
+                pointRadius: 0, 
+                fill: true, 
+                tension: 0.4 
+            }]
         },
-        options: { responsive: false, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            scales: { y: { display: true, grid: { display: false } }, x: { display: false } },
+            animation: { duration: 150 }
+        }
     });
 }
 
-function initCharts() {
-    state.charts['chart-jarak']         = makeChart('chart-jarak', 'jarak', 70);
-    state.charts['chart-jarak-manual']  = makeChart('chart-jarak-manual', 'jarak_manual', 70);
-    state.charts['chart-jarak-big']     = makeChart('chart-jarak-big', 'jarak', 120);
-    state.charts['chart-jarak-manual-big'] = makeChart('chart-jarak-manual-big', 'jarak_manual', 120);
-}
-
-function pushHistory(key, val) {
-    const h = state.history[key];
-    if (!h) return;
+function pushHistory(val) {
+    const h = state.history.suhu;
     h.labels.push(new Date().toLocaleTimeString('id-ID', { hour12: false }));
     h.data.push(parseFloat(val) || 0);
     if (h.labels.length > MAX_PTS) { h.labels.shift(); h.data.shift(); }
 
-    [`chart-${key === 'jarak_manual' ? 'jarak-manual' : key}`,
-     `chart-${key === 'jarak_manual' ? 'jarak-manual' : key}-big`].forEach(id => {
-        const ch = state.charts[id];
-        if (!ch) return;
-        ch.data.labels           = h.labels;
+    const ch = state.charts['chart-suhu-mini'];
+    if (ch) {
+        ch.data.labels = h.labels;
         ch.data.datasets[0].data = h.data;
         ch.update('none');
-    });
+    }
 }
 
-// =====================================================================
-// INITIALIZATION ONLOAD
-// =====================================================================
+// App Initialization Event Binding Entry Point
 $('btn-connect-ble').onclick    = connectBLE;
 $('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
 $('btn-connect-fb').onclick     = connectFirebase;
 $('btnClearLog').onclick        = () => $('terminalLog').innerHTML = '';
 
 window.onload = () => {
-    initCharts();
+    state.charts['chart-suhu-mini'] = makeChart('chart-suhu-mini', 70);
     applyMode(true);
-    const saved = JSON.parse(localStorage.getItem('smarthome_cfg') || '{}');
+    
+    const saved = JSON.parse(localStorage.getItem('pusheen_garden_cfg') || '{}');
     if (saved.apiKey) {
         $('fb-apiKey').value = saved.apiKey;
         $('fb-dbUrl').value  = saved.dbUrl;
         $('fb-path').value   = saved.path || "smarthome/ruangan1";
     }
-    log("✓ System UI My Little Pusheen Siap Digunakan! 🌸 🌱", "#27c93f");
+    log("Aplikasi Siap! Sambungkan Firebase & Micro:bit untuk memulai... 🌱", "#ff65a3");
 };
 </script>
 </body>
