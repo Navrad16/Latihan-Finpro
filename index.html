@@ -413,7 +413,7 @@ function updateRelayUI(isOn) {
     if (sw && document.activeElement !== sw) sw.checked = isOn;
 }
 
-// Menuliskan data angka ke UI
+// PERBAIKAN UTAMA: Target selector penulisan angka sensor disinkronisasi penuh dengan struktur baru
 function updateSensorUI(val) {
     const el = $('val-suhu');
     if (!el) return;
@@ -463,17 +463,11 @@ function onBLEData(event) {
     lines.forEach(line => { const t = line.trim(); if (t) processBLELine(t); });
 }
 
-// PERBAIKAN LOGIKA PARSING: Otomatis mendeteksi pemisah koma (,) ataupun titik dua (:) dari data UART Microbit
 function processBLELine(txt) {
     log(`RX ← ${txt}`, "#ffbcca");
-    
-    let separator = "";
-    if (txt.includes(',')) separator = ',';
-    else if (txt.includes(':')) separator = ':';
-    
-    if (!separator) return;
+    if (!txt.includes(',')) return;
 
-    const idx = txt.indexOf(separator);
+    const idx = txt.indexOf(',');
     const key = txt.substring(0, idx).trim();
     const val = parseFloat(txt.substring(idx + 1).trim());
     if (isNaN(val)) return;
@@ -487,7 +481,137 @@ function processBLELine(txt) {
         if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
         return;
     }
+    // Kompatibilitas pembacaan hardware: jika microbit mengirim 'suhu' maupun 'jarak' (logika lama), tetap ditangkap sebagai data suhu dht11
     if (key === "suhu" || key === "jarak") { 
         updateSensorUI(val);
         pushHistory(val);
-        if (state
+        if (state.db) update(ref(state.db, `${state.path}/suhu`), { value: val, tipe: 'sensor', satuan: 'C' });
+        return;
+    }
+}
+
+async function sendBLE(key, val) {
+    if (!state.rxChar) return;
+    const payload = `${key},${val}\n`;
+    try {
+        await state.rxChar.writeValue(new TextEncoder().encode(payload));
+        log(`TX → ${payload.trim()}`, "#ffd15c");
+    } catch (e) { log(`Gagal Kirim Data: ${e.message}`, "#ff5252"); }
+}
+
+window.toggleRelay = (isChecked) => {
+    if (state.modeOtomatis === 1) return;
+    const val = isChecked ? 1 : 0;
+    updateRelayUI(isChecked);
+    sendBLE("Relay", val);
+    if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
+    log(`Aksi Manual Kipas → ${isChecked ? 'ON' : 'OFF'}`, "#ff65a3");
+};
+
+async function connectFirebase() {
+    const apiKey = $('fb-apiKey').value.trim();
+    const dbUrl  = $('fb-dbUrl').value.trim();
+    const path   = $('fb-path').value.trim() || "smarthome/ruangan1";
+    if (!apiKey || !dbUrl) { alert("Tolong lengkapi kolom API Key dan Database URL Firebase!"); return; }
+
+    try {
+        const apps = getApps();
+        if (apps.length > 0) await deleteApp(apps[0]);
+        if (state.unsub) state.unsub();
+
+        const app = initializeApp({
+            apiKey, databaseURL: dbUrl,
+            projectId: dbUrl.replace("https://","").split(".")[0]
+        });
+        state.db   = getDatabase(app);
+        state.path = path;
+        log(`Menyambungkan Sesi Database... /${path}`, "#ffd15c");
+
+        const initData = {
+            suhu:  { tipe: 'sensor', value: 0, satuan: 'C' },
+            relay: { tipe: 'switch', value: 0 },
+            mode:  { tipe: 'switch', value: 1 }
+        };
+
+        state.unsub = onValue(ref(state.db, path), (snap) => {
+            const d = snap.val();
+            if (!d) { set(ref(state.db, path), initData); return; }
+            state.data = d;
+            updateDBStatus(true);
+
+            if (d.suhu)  { updateSensorUI(d.suhu.value ?? 0); pushHistory(d.suhu.value ?? 0); }
+            if (d.relay) updateRelayUI((d.relay.value ?? 0) === 1);
+            if (d.mode)  applyMode((d.mode.value ?? 1) === 1);
+        }, err => { log(`Firebase Error: ${err.message}`, "#ff5252"); updateDBStatus(false); });
+
+        log(`✓ Sinkronisasi Cloud Firebase Berhasil!`, "#ff65a3");
+        localStorage.setItem('pusheen_garden_cfg', JSON.stringify({ apiKey, dbUrl, path }));
+    } catch (e) { log(`Koneksi DB Gagal: ${e.message}`, "#ff5252"); updateDBStatus(false); }
+}
+
+function makeChart(canvasId, height = 70) {
+    const canvas = $(canvasId);
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, 'rgba(255, 101, 163, 0.4)');
+    grad.addColorStop(1, 'rgba(255, 101, 163, 0.0)');
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: state.history.suhu.labels,
+            datasets: [{ 
+                data: state.history.suhu.data, 
+                borderColor: '#ff65a3', 
+                backgroundColor: grad, 
+                borderWidth: 3, 
+                pointRadius: 0, 
+                fill: true, 
+                tension: 0.4 
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            scales: { y: { display: true, grid: { display: false } }, x: { display: false } },
+            animation: { duration: 150 }
+        }
+    });
+}
+
+function pushHistory(val) {
+    const h = state.history.suhu;
+    h.labels.push(new Date().toLocaleTimeString('id-ID', { hour12: false }));
+    h.data.push(parseFloat(val) || 0);
+    if (h.labels.length > MAX_PTS) { h.labels.shift(); h.data.shift(); }
+
+    const ch = state.charts['chart-suhu-mini'];
+    if (ch) {
+        ch.data.labels = h.labels;
+        ch.data.datasets[0].data = h.data;
+        ch.update('none');
+    }
+}
+
+$('btn-connect-ble').onclick    = connectBLE;
+$('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
+$('btn-connect-fb').onclick     = connectFirebase;
+$('btnClearLog').onclick        = () => $('terminalLog').innerHTML = '';
+
+window.onload = () => {
+    state.charts['chart-suhu-mini'] = makeChart('chart-suhu-mini', 70);
+    applyMode(true);
+    
+    const saved = JSON.parse(localStorage.getItem('pusheen_garden_cfg') || '{}');
+    if (saved.apiKey) {
+        $('fb-apiKey').value = saved.apiKey;
+        $('fb-dbUrl').value  = saved.dbUrl;
+        $('fb-path').value   = saved.path || "smarthome/ruangan1";
+    }
+    log("Aplikasi Siap! Sambungkan Firebase & Micro:bit untuk memulai... 🌱", "#ff65a3");
+};
+</script>
+</body>
+</html>
