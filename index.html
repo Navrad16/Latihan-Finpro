@@ -65,7 +65,7 @@
             display: inline-block;
         }
 
-        /* ===== LAYOUT GRID (MATCHING IMAGE POSITION) ===== */
+        /* ===== LAYOUT GRID ===== */
         .main-grid {
             display: grid;
             grid-template-columns: 460px 1fr;
@@ -133,13 +133,7 @@
         .btn-cute:disabled { background: #cbd5e1; box-shadow: 0 4px 0 #94a3b8; cursor: not-allowed; }
         .btn-secondary { background: #b1859b; box-shadow: 0 4px 0 #855b71; }
 
-        /* ===== INDIVIDUAL CARD SPECIFICS ===== */
-        /* Microbit Card */
-        .microbit-card p {
-            font-size: 0.85em; color: #a17b8e; line-height: 1.6; margin-bottom: 20px; font-weight: 600;
-        }
-
-        /* DHT11 Suhu Card */
+        /* ===== DHT11 SUHU VALUE RENDER ===== */
         .suhu-display-container {
             text-align: center;
             margin: 15px 0;
@@ -182,7 +176,7 @@
         .relay-wrapper {
             text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
         }
-        .relay-bolt { font-size: 3.5em; color: #ffd15c; margin-bottom: 5px; animation: bounce 3s infinite; }
+        .relay-bolt { font-size: 3.5em; color: #ffd15c; margin-bottom: 5px; }
         .relay-title-text { font-family: 'Fredoka One', sans-serif; font-size: 1.4em; color: #e07a5f; margin-bottom: 4px; }
         .relay-meta { font-size: 0.78em; color: #a3728a; font-weight: 600; line-height: 1.4; margin-bottom: 10px; padding: 0 10px; }
         .relay-state-output { font-family: 'Fredoka One', sans-serif; font-size: 2em; color: #94a3b8; text-transform: capitalize; }
@@ -221,12 +215,11 @@
 
         /* ===== ABSOLUTE PLACED PUSHEEN CHARACTERS ===== */
         .pusheen-img { position: absolute; pointer-events: none; z-index: 5; }
-        .pusheen-reader  { bottom: -5px; right: -75px; width: 90px; } /* Dekat Microbit */
-        .pusheen-unicorn { bottom: -45px; left: -35px; width: 115px; } /* Pojok kiri Firebase */
-        .pusheen-sitting { bottom: 25px; right: -55px; width: 95px; }  /* Samping Suhu */
-        .pusheen-angel   { bottom: -45px; left: -30px; width: 105px; } /* Pojok kiri Terminal */
+        .pusheen-reader  { bottom: -5px; right: -75px; width: 90px; } 
+        .pusheen-unicorn { bottom: -45px; left: -35px; width: 115px; } 
+        .pusheen-sitting { bottom: 25px; right: -55px; width: 95px; }  
+        .pusheen-angel   { bottom: -45px; left: -30px; width: 105px; } 
 
-        /* ===== RESPONSIVE MEDIA QUERIES ===== */
         @media (max-width: 1024px) {
             .main-grid { grid-template-columns: 1fr; }
             .pusheen-img { display: none; }
@@ -252,10 +245,9 @@
     <div class="main-grid">
         
         <div class="left-pane">
-            
-            <div class="card microbit-card">
+            <div class="card">
                 <div class="card-title-cute" style="color: #fda4af;"><i class="fas fa-microchip"></i> Connect Microbit</div>
-                <p>Pastikan Micro:bit menyala dan ekstensi <span style="color: var(--pink-main); font-weight:700;">Bluetooth UART</span> aktif di MakeCode.</p>
+                <p style="font-size: 0.85em; color: #a17b8e; line-height: 1.6; margin-bottom: 20px; font-weight: 600;">Pastikan Micro:bit menyala dan ekstensi <span style="color: var(--pink-main); font-weight:700;">Bluetooth UART</span> aktif di MakeCode.</p>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <button class="btn-cute" id="btn-connect-ble">
                         <i class="fab fa-bluetooth"></i> Connect Micro:Bit
@@ -285,20 +277,17 @@
                 
                 <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%203.png?raw=true" class="pusheen-img pusheen-unicorn" alt="pusheen pegacorn">
             </div>
-
         </div>
 
         <div class="right-pane">
-            
             <div class="card full-width-cell">
                 <div class="card-title-cute" style="color: #ff65a3;"><i class="fas fa-thermometer-half"></i> DHT11 - SUHU</div>
                 <div class="suhu-display-container">
-                    <div class="suhu-value" id="val-suhu">--<span class="suhu-degree-symbol">°</span></div>
+                    <div class="suhu-value" id="val-suhu"><span class="num">--</span><span class="suhu-degree-symbol">°</span></div>
                 </div>
                 <div class="suhu-subtitle">Suhu udara taman</div>
                 
                 <div class="chart-mini-container"><canvas id="chart-suhu-mini"></canvas></div>
-
                 <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Group%205.png?raw=true" class="pusheen-img pusheen-sitting" alt="pusheen eating snack">
             </div>
 
@@ -341,7 +330,6 @@
                     </button>
                 </div>
                 <div id="terminalLog" class="terminal-screen"></div>
-                
                 <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="pusheen-img pusheen-angel" alt="pusheen angel wings">
             </div>
 
@@ -354,29 +342,26 @@
 import { initializeApp, getApps, deleteApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-// Application State Management
 const state = {
     db: null, path: "", unsub: null, data: {},
     device: null, txChar: null, rxChar: null,
     bleConnected: false, bleBuffer: "",
-    modeOtomatis: 1,   // Default State: 1 = Automatic, 0 = Manual Operation Mode
+    modeOtomatis: 1,   
     charts: {},
     history: {
         suhu: { labels: [], data: [] }
     }
 };
 
-const MAX_PTS = 20; // Batasan jumlah memori titik data grafik
-const $ = id => document.getElementById(id); // Shortcut handler DOM element selection
+const MAX_PTS = 20; 
+const $ = id => document.getElementById(id); 
 
-// Logging Framework System Console Terminal
 function log(msg, color = "#ffbcca") {
     const t = new Date().toLocaleTimeString('id-ID', { hour12: false });
     $('terminalLog').insertAdjacentHTML('afterbegin',
         `<div class="log-row"><span class="log-timestamp">[${t}]</span><span style="color:${color}"> ${msg}</span></div>`);
 }
 
-// Network Link Status Visual Management
 function updateBTStatus() {
     $('btn-connect-ble').disabled    = state.bleConnected;
     $('btn-disconnect-ble').disabled = !state.bleConnected;
@@ -390,7 +375,6 @@ function updateDBStatus(ok) {
     b.className = 'badge' + (ok ? ' online' : '');
 }
 
-// System Operation Mode Handler (Auto Control/Manual Trigger Handler Swap)
 function applyMode(isAuto) {
     state.modeOtomatis = isAuto ? 1 : 0;
     const switchBtn = $('cuteSwitch');
@@ -416,7 +400,6 @@ function applyMode(isAuto) {
 
 $('btnToggleMode').onclick = () => applyMode(state.modeOtomatis === 0);
 
-// Actuator Status (Relay Control Node Handler)
 function updateRelayUI(isOn) {
     const lbl = $('lbl-relay');
     const sw = $('sw-relay');
@@ -430,14 +413,19 @@ function updateRelayUI(isOn) {
     if (sw && document.activeElement !== sw) sw.checked = isOn;
 }
 
-// DHT11 Sensor Data Processor Update Interface
+// PERBAIKAN UTAMA: Target selector penulisan angka sensor disinkronisasi penuh dengan struktur baru
 function updateSensorUI(val) {
     const el = $('val-suhu');
     if (!el) return;
-    el.innerHTML = `${val}<span class="suhu-degree-symbol">°</span>`;
+    
+    let numSpan = el.querySelector('.num');
+    if (!numSpan) {
+        el.innerHTML = `<span class="num">${val}</span><span class="suhu-degree-symbol">°</span>`;
+    } else {
+        numSpan.textContent = val;
+    }
 }
 
-// Web Bluetooth API Logic Integration
 const SVC = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
 const TX  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
 const RX  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
@@ -475,7 +463,6 @@ function onBLEData(event) {
     lines.forEach(line => { const t = line.trim(); if (t) processBLELine(t); });
 }
 
-// Memproses baris data UART masuk dari microbit hardware
 function processBLELine(txt) {
     log(`RX ← ${txt}`, "#ffbcca");
     if (!txt.includes(',')) return;
@@ -494,7 +481,7 @@ function processBLELine(txt) {
         if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
         return;
     }
-    // Konversi key ultrasonic bawaan ('jarak') agar dibaca sebagai 'suhu' dht11
+    // Kompatibilitas pembacaan hardware: jika microbit mengirim 'suhu' maupun 'jarak' (logika lama), tetap ditangkap sebagai data suhu dht11
     if (key === "suhu" || key === "jarak") { 
         updateSensorUI(val);
         pushHistory(val);
@@ -521,7 +508,6 @@ window.toggleRelay = (isChecked) => {
     log(`Aksi Manual Kipas → ${isChecked ? 'ON' : 'OFF'}`, "#ff65a3");
 };
 
-// Firebase Cloud Synchronization System Core Backend
 async function connectFirebase() {
     const apiKey = $('fb-apiKey').value.trim();
     const dbUrl  = $('fb-dbUrl').value.trim();
@@ -563,7 +549,6 @@ async function connectFirebase() {
     } catch (e) { log(`Koneksi DB Gagal: ${e.message}`, "#ff5252"); updateDBStatus(false); }
 }
 
-// ChartJS Realtime Generation Engine (Desain Chart Dipertahankan Asli)
 function makeChart(canvasId, height = 70) {
     const canvas = $(canvasId);
     if (!canvas) return null;
@@ -610,7 +595,6 @@ function pushHistory(val) {
     }
 }
 
-// App Initialization Event Binding Entry Point
 $('btn-connect-ble').onclick    = connectBLE;
 $('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
 $('btn-connect-fb').onclick     = connectFirebase;
