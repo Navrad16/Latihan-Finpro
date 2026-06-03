@@ -465,9 +465,14 @@ function onBLEData(event) {
 
 function processBLELine(txt) {
     log(`RX ← ${txt}`, "#ffbcca");
-    if (!txt.includes(',')) return;
 
-    const idx = txt.indexOf(',');
+    // Support both formats: "key:value" (colon) dan "key,value" (comma)
+    let sep = null;
+    if (txt.includes(':')) sep = ':';
+    else if (txt.includes(',')) sep = ',';
+    else return;
+
+    const idx = txt.indexOf(sep);
     const key = txt.substring(0, idx).trim();
     const val = parseFloat(txt.substring(idx + 1).trim());
     if (isNaN(val)) return;
