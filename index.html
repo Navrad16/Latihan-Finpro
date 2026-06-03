@@ -300,3 +300,326 @@
                     <div class="mode-text manual-lbl" id="modeTxtSub">Manual</div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="relay-wrapper">
+                    <div class="relay-bolt"><i class="fas fa-bolt"></i></div>
+                    <div class="relay-title-text">Relay</div>
+                    <div class="relay-meta">📌 pin P13 . Untuk mengontrol nyala dan matinya kipas</div>
+                    <div class="relay-state-output" id="lbl-relay">Off</div>
+                    
+                    <div id="manual-relay-wrap" style="display: none; margin-top: 5px;">
+                        <label class="manual-toggle-element">
+                            <input type="checkbox" id="sw-relay" onchange="window.toggleRelay(this.checked)">
+                            <span class="slider-round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card full-width-cell terminal-box">
+                <div class="terminal-header-pane">
+                    <div class="terminal-header-title">
+                        <div class="terminal-dots-wrap">
+                            <div class="t-dot red"></div><div class="t-dot yellow"></div><div class="t-dot green"></div>
+                        </div>
+                        <span>System_terminal</span>
+                    </div>
+                    <button class="btn-cute btn-secondary" id="btnClearLog" style="padding: 4px 12px; font-size: 0.7em; width: auto; font-family: monospace; border-radius: 8px; box-shadow: 0 2px 0 #542239;">
+                        Clear
+                    </button>
+                </div>
+                <div id="terminalLog" class="terminal-screen"></div>
+                <img src="https://github.com/Navrad16/Latihan-Finpro/blob/main/Vector%206.png?raw=true" class="pusheen-img pusheen-angel" alt="pusheen angel wings">
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps, deleteApp }     from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const state = {
+    db: null, path: "", unsub: null, data: {},
+    device: null, txChar: null, rxChar: null,
+    bleConnected: false, bleBuffer: "",
+    modeOtomatis: 1,   
+    charts: {},
+    history: {
+        suhu: { labels: [], data: [] }
+    }
+};
+
+const MAX_PTS = 20; 
+const $ = id => document.getElementById(id); 
+
+function log(msg, color = "#ffbcca") {
+    const t = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    $('terminalLog').insertAdjacentHTML('afterbegin',
+        `<div class="log-row"><span class="log-timestamp">[${t}]</span><span style="color:${color}"> ${msg}</span></div>`);
+}
+
+function updateBTStatus() {
+    $('btn-connect-ble').disabled    = state.bleConnected;
+    $('btn-disconnect-ble').disabled = !state.bleConnected;
+    const b = $('status-bt');
+    b.innerHTML = state.bleConnected ? '<i class="fab fa-bluetooth-b"></i> BT Connected' : '<i class="fab fa-bluetooth-b"></i> BT Offline';
+    b.className = 'badge' + (state.bleConnected ? ' online' : '');
+}
+function updateDBStatus(ok) {
+    const b = $('status-fb');
+    b.innerHTML = ok ? '<i class="fas fa-cloud"></i> DB Synced' : '<i class="fas fa-cloud"></i> DB Offline';
+    b.className = 'badge' + (ok ? ' online' : '');
+}
+
+function applyMode(isAuto) {
+    state.modeOtomatis = isAuto ? 1 : 0;
+    const switchBtn = $('cuteSwitch');
+    const txtMain = $('modeTxt');
+    const txtSub = $('modeTxtSub');
+
+    if (isAuto) {
+        switchBtn.className = "switch-track-cute auto";
+        txtMain.style.color = "var(--pink-main)";
+        txtSub.style.color = "#cbd5e1";
+        $('manual-relay-wrap').style.display = 'none';
+    } else {
+        switchBtn.className = "switch-track-cute manual";
+        txtMain.style.color = "#cbd5e1";
+        txtSub.style.color = "#e07a5f";
+        $('manual-relay-wrap').style.display = 'block';
+    }
+
+    sendBLE("mode", isAuto ? 1 : 0);
+    if (state.db) update(ref(state.db, `${state.path}/mode`), { value: isAuto ? 1 : 0 });
+    log(`Mode sistem diubah → ${isAuto ? 'AUTO' : 'MANUAL'}`, isAuto ? '#ff65a3' : '#ffd15c');
+}
+
+$('btnToggleMode').onclick = () => applyMode(state.modeOtomatis === 0);
+
+function updateRelayUI(isOn) {
+    const lbl = $('lbl-relay');
+    const sw = $('sw-relay');
+    if (isOn) {
+        lbl.textContent = "On";
+        lbl.className = "relay-state-output on";
+    } else {
+        lbl.textContent = "Off";
+        lbl.className = "relay-state-output";
+    }
+    if (sw && document.activeElement !== sw) sw.checked = isOn;
+}
+
+function updateSensorUI(val) {
+    const el = $('val-suhu');
+    if (!el) return;
+    const num = parseFloat(val);
+    const display = isNaN(num) ? '--' : num;
+    let numSpan = el.querySelector('.num');
+    if (!numSpan) {
+        el.innerHTML = `<span class="num">${display}</span><span class="suhu-degree-symbol">°</span>`;
+    } else {
+        numSpan.textContent = display;
+    }
+}
+
+const SVC = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const TX  = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+const RX  = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+async function connectBLE() {
+    try {
+        if (!navigator.bluetooth) throw new Error("Browser ini tidak mendukung fitur Web Bluetooth.");
+        log("Mencari perangkat Micro:bit...", "#ffd15c");
+        state.device = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: "BBC micro:bit" }],
+            optionalServices: [SVC]
+        });
+        state.device.addEventListener("gattserverdisconnected", () => {
+            state.bleConnected = false; updateBTStatus();
+            log("Koneksi Bluetooth Terputus!", "#ff5252");
+        });
+        const server  = await state.device.gatt.connect();
+        const service = await server.getPrimaryService(SVC);
+        state.txChar  = await service.getCharacteristic(TX);
+        state.rxChar  = await service.getCharacteristic(RX);
+        await state.txChar.startNotifications();
+        state.txChar.addEventListener("characteristicvaluechanged", onBLEData);
+        state.bleConnected = true; updateBTStatus();
+        log(`✓ Sukses Terhubung Ke: ${state.device.name}`, "#ff65a3");
+    } catch (e) { log(`Error BLE: ${e.message}`, "#ff5252"); }
+}
+
+function onBLEData(event) {
+    let arr = [];
+    for (let i = 0; i < event.target.value.byteLength; i++)
+        arr.push(event.target.value.getUint8(i));
+    state.bleBuffer += String.fromCharCode.apply(null, arr);
+    const lines = state.bleBuffer.split('\n');
+    state.bleBuffer = lines.pop() || "";
+    lines.forEach(line => { const t = line.trim(); if (t) processBLELine(t); });
+}
+
+function processBLELine(txt) {
+    log(`RX ← ${txt}`, "#ffbcca");
+
+    // Support both formats: "key:value" (colon) dan "key,value" (comma)
+    let sep = null;
+    if (txt.includes(':')) sep = ':';
+    else if (txt.includes(',')) sep = ',';
+    else return;
+
+    const idx = txt.indexOf(sep);
+    const key = txt.substring(0, idx).trim();
+    const rawVal = txt.substring(idx + 1).trim();
+    const val = parseFloat(rawVal);
+    
+    log(`↳ key="${key}" rawVal="${rawVal}" parsed=${val}`, "#a3e0ff");
+    
+    if (isNaN(val)) return;
+
+    if (key === "mode") {
+        applyMode(val === 1);
+        return;
+    }
+    if (key === "Relay") {
+        updateRelayUI(val === 1);
+        if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
+        return;
+    }
+    if (key === "suhu" || key === "jarak") { 
+        updateSensorUI(val);
+        pushHistory(val);
+        if (state.db) update(ref(state.db, `${state.path}/suhu`), { value: val, tipe: 'sensor', satuan: 'C' });
+        return;
+    }
+}
+
+async function sendBLE(key, val) {
+    if (!state.rxChar) return;
+    const payload = `${key},${val}\n`;
+    try {
+        await state.rxChar.writeValue(new TextEncoder().encode(payload));
+        log(`TX → ${payload.trim()}`, "#ffd15c");
+    } catch (e) { log(`Gagal Kirim Data: ${e.message}`, "#ff5252"); }
+}
+
+window.toggleRelay = (isChecked) => {
+    if (state.modeOtomatis === 1) return;
+    const val = isChecked ? 1 : 0;
+    updateRelayUI(isChecked);
+    sendBLE("Relay", val);
+    if (state.db) update(ref(state.db, `${state.path}/relay`), { value: val });
+    log(`Aksi Manual Kipas → ${isChecked ? 'ON' : 'OFF'}`, "#ff65a3");
+};
+
+async function connectFirebase() {
+    const apiKey = $('fb-apiKey').value.trim();
+    const dbUrl  = $('fb-dbUrl').value.trim();
+    const path   = $('fb-path').value.trim() || "smarthome/ruangan1";
+    if (!apiKey || !dbUrl) { alert("Tolong lengkapi kolom API Key dan Database URL Firebase!"); return; }
+
+    try {
+        const apps = getApps();
+        if (apps.length > 0) await deleteApp(apps[0]);
+        if (state.unsub) state.unsub();
+
+        const app = initializeApp({
+            apiKey, databaseURL: dbUrl,
+            projectId: dbUrl.replace("https://","").split(".")[0]
+        });
+        state.db   = getDatabase(app);
+        state.path = path;
+        log(`Menyambungkan Sesi Database... /${path}`, "#ffd15c");
+
+        const initData = {
+            suhu:  { tipe: 'sensor', value: 0, satuan: 'C' },
+            relay: { tipe: 'switch', value: 0 },
+            mode:  { tipe: 'switch', value: 1 }
+        };
+
+        state.unsub = onValue(ref(state.db, path), (snap) => {
+            const d = snap.val();
+            if (!d) { set(ref(state.db, path), initData); return; }
+            state.data = d;
+            updateDBStatus(true);
+
+            if (d.suhu)  { updateSensorUI(d.suhu.value ?? 0); pushHistory(d.suhu.value ?? 0); }
+            if (d.relay) updateRelayUI((d.relay.value ?? 0) === 1);
+            if (d.mode)  applyMode((d.mode.value ?? 1) === 1);
+        }, err => { log(`Firebase Error: ${err.message}`, "#ff5252"); updateDBStatus(false); });
+
+        log(`✓ Sinkronisasi Cloud Firebase Berhasil!`, "#ff65a3");
+        localStorage.setItem('pusheen_garden_cfg', JSON.stringify({ apiKey, dbUrl, path }));
+    } catch (e) { log(`Koneksi DB Gagal: ${e.message}`, "#ff5252"); updateDBStatus(false); }
+}
+
+function makeChart(canvasId, height = 70) {
+    const canvas = $(canvasId);
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, 'rgba(255, 101, 163, 0.4)');
+    grad.addColorStop(1, 'rgba(255, 101, 163, 0.0)');
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: state.history.suhu.labels,
+            datasets: [{ 
+                data: state.history.suhu.data, 
+                borderColor: '#ff65a3', 
+                backgroundColor: grad, 
+                borderWidth: 3, 
+                pointRadius: 0, 
+                fill: true, 
+                tension: 0.4 
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            scales: { y: { display: true, grid: { display: false } }, x: { display: false } },
+            animation: { duration: 150 }
+        }
+    });
+}
+
+function pushHistory(val) {
+    const h = state.history.suhu;
+    h.labels.push(new Date().toLocaleTimeString('id-ID', { hour12: false }));
+    const n = parseFloat(val); h.data.push(isNaN(n) ? 0 : n);
+    if (h.labels.length > MAX_PTS) { h.labels.shift(); h.data.shift(); }
+
+    const ch = state.charts['chart-suhu-mini'];
+    if (ch) {
+        ch.data.labels = h.labels;
+        ch.data.datasets[0].data = h.data;
+        ch.update('none');
+    }
+}
+
+$('btn-connect-ble').onclick    = connectBLE;
+$('btn-disconnect-ble').onclick = () => { if (state.device) state.device.gatt.disconnect(); };
+$('btn-connect-fb').onclick     = connectFirebase;
+$('btnClearLog').onclick        = () => $('terminalLog').innerHTML = '';
+
+window.onload = () => {
+    state.charts['chart-suhu-mini'] = makeChart('chart-suhu-mini', 70);
+    applyMode(true);
+    
+    const saved = JSON.parse(localStorage.getItem('pusheen_garden_cfg') || '{}');
+    if (saved.apiKey) {
+        $('fb-apiKey').value = saved.apiKey;
+        $('fb-dbUrl').value  = saved.dbUrl;
+        $('fb-path').value   = saved.path || "smarthome/ruangan1";
+    }
+    log("Aplikasi Siap! Sambungkan Firebase & Micro:bit untuk memulai... 🌱", "#ff65a3");
+};
+</script>
+</body>
+</html>
